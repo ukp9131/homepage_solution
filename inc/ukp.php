@@ -2300,5 +2300,19 @@ class Ukp {
         }
         return $arr;
     }
-
+    
+    /**
+     * 세션체크<br>
+     * code 리스트<br>
+     * 1: 관리자여부
+     */
+    function solution_session_check($code, $view_bool = true) {
+        $text = $view_bool ? '<script>location.replace("index.php")</script>' : "999";
+        if($code == "1") {
+            if($this->session_get("admin_idx") == "") {
+                echo $text;
+                exit;
+            }
+        }
+    }
 }

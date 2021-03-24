@@ -15,13 +15,12 @@ $ukp = new Ukp();
 $data["remap_code"] = $ukp->solution_get_code();
 $data["remap_dir"] = dirname(__FILE__);
 $data["remap_base"] = basename(__FILE__);
-$data["remap_menu_bool"] = true;
-if($data["remap_menu_bool"]) {
+$data["remap_header_bool"] = false;
+if($data["remap_header_bool"]) {
     $data["remap_admin_info"] = $ukp->solution_table_info("admin", $ukp->session_get("admin_idx"));
 }
-$data["remap_header_bool"] = true;
-$data["remap_header_text"] = "설정 &gt; 관리자로그";
-$data["remap_footer_bool"] = true;
+$data["remap_header_text"] = "";
+$data["remap_footer_bool"] = false;
 
 $data["remap_url"] = ($ukp->common_is_https() ? "https://" : "http://") . "{$ukp->input_server("http_host")}/{$ukp->input_server("request_uri")}";
 //article(게시글정보) 또는 website(홈페이지정보)
@@ -41,6 +40,6 @@ $data["remap_article_published_time"] = "";
 //게시글수정일(YYYY-mm-dd HH:ii:ss)
 $data["remap_article_modified_time"] = "";
 
-$db_field = $ukp->common_get_field("db");
+$db_field = $ukp->common_get_field("db_info");
 $data["remap_time_zone"] = $db_field["default"]["time_zone"];
 require_once "{$data["remap_dir"]}/_view/_remap.php";
