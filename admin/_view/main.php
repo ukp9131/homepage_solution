@@ -1,3 +1,30 @@
+<style>
+    .ukp__box_content {
+        position: relative;
+        padding: 1.25rem;
+    }
+    .ukp__box_content > .ukp__form {
+        border: 1px solid #dee2e6;
+        background-color: white;
+        padding: 1.25rem;
+        max-width: 31.25rem;
+    }
+    .ukp__box_content > .ukp__form > .ukp__title {
+        padding-bottom: 3.125rem;
+        font-size: 0.875rem;
+        font-weight: bold;
+    }
+    .ukp__box_content > .ukp__form > .ukp__row {
+        padding-bottom: 1.25rem;
+    }
+    .ukp__box_content > .ukp__form > .ukp__btn {
+        text-align: right;
+        font-size: 0;
+    }
+    .ukp__box_content > .ukp__form > .ukp__btn > .ukp__module_btn {
+        display: inline-block;
+    }
+</style>
 <div class="ukp__box_content">
     <form class="ukp__form ukp__js_content_form" method="post" action="_update_my_admin.php">
         <div class="ukp__title">관리자 정보 수정</div>

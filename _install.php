@@ -86,6 +86,7 @@ CREATE TABLE if not exists {$prefix}board
     index (`category_idx`),
     index (`image_idx`),
     index (`member_idx`),
+    index (`top_flag`),
     PRIMARY KEY (board_idx)
 ) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collate} COMMENT='게시판(b)'
 ";
@@ -95,38 +96,21 @@ CREATE TABLE if not exists {$prefix}category
 (
     `category_idx`         int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
     `parent_category_idx`  int(11)         NULL        COMMENT '상위카테고리', 
-    `category_type_idx`    int(11)         NULL        COMMENT '카테고리타입', 
+    `file_name`            varchar(191)    NULL        COMMENT '시작파일명', 
+    `manager_file_name`    varchar(191)    NULL        COMMENT '관리자시작파일명', 
     `title`                varchar(191)    NULL        COMMENT '카테고리명', 
     `sort`                 int(11)         NULL        DEFAULT 0 COMMENT '정렬순서', 
-    `board_flag`           varchar(1)      NULL        DEFAULT 'n' COMMENT '게시글작성flag', 
-    `comment_flag`         varchar(1)      NULL        DEFAULT 'n' COMMENT '댓글작성flag', 
-    `editor_flag`          varchar(1)      NULL        DEFAULT 'n' COMMENT '에디터사용flag', 
-    `file_flag`            varchar(1)      NULL        DEFAULT 'n' COMMENT '파일첨부사용flag', 
+    `board_flag`           varchar(1)      NULL        DEFAULT 'n' COMMENT '게시글작성(y,n,m)', 
+    `comment_flag`         varchar(1)      NULL        DEFAULT 'n' COMMENT '댓글작성(y,n,m)', 
+    `editor_flag`          varchar(1)      NULL        DEFAULT 'n' COMMENT '에디터사용(y,n,m)', 
+    `file_flag`            varchar(1)      NULL        DEFAULT 'n' COMMENT '파일첨부사용(y,n,m)', 
     `insert_date`          date            NULL        COMMENT '입력일', 
     `insert_time`          time            NULL        COMMENT '입력시', 
     `delete_flag`          varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 
     index (`parent_category_idx`),
-    index (`category_type_idx`),
+    index (`sort`),
     PRIMARY KEY (category_idx)
 ) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collate} COMMENT='카테고리(c)'
-";
-$ukp->db_query($sql);
-$sql = "
-CREATE TABLE if not exists {$prefix}category_type
-(
-    `category_type_idx`  int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
-    `file_name`          varchar(191)    NULL        COMMENT '시작파일명', 
-    `manager_file_name`  varchar(191)    NULL        COMMENT '관리자시작파일명', 
-    `title`              varchar(191)    NULL        COMMENT '타입명', 
-    `board_flag_list`    varchar(191)    NULL        COMMENT '게시글작성flag리스트', 
-    `comment_flag_list`  varchar(191)    NULL        COMMENT '댓글작성flag리스트', 
-    `editor_flag_list`   varchar(191)    NULL        COMMENT '에디터사용flag리스트', 
-    `file_flag_list`     varchar(191)    NULL        COMMENT '파일첨부사용flag리스트', 
-    `insert_date`        date            NULL        COMMENT '입력일', 
-    `insert_time`        time            NULL        COMMENT '입력시', 
-    `delete_flag`        varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 
-    PRIMARY KEY (category_type_idx)
-) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collate} COMMENT='카테고리타입(ct)'
 ";
 $ukp->db_query($sql);
 $sql = "

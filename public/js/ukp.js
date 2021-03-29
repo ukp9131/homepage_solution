@@ -4,7 +4,7 @@
  * 모듈 require는 ukp__js_common 멤버함수만 표시
  * 
  * require jquery.js, jquery.form.js, marked.js, highlight.js
- * @version 2021.01.05
+ * @version 2021.03.26
  * @author ukp
  */
 
@@ -74,16 +74,13 @@ var ukp__js_module = {
             file_reader.readAsDataURL(file_obj);
             file_reader.onload = function (e) {
                 //css 변경
-                thumbnail.css("width", "12.5rem");
-                thumbnail.css("height", "12.5rem");
-                thumbnail.css("border", "0.0625rem solid black");
+                thumbnail.addClass("ukp__active");
                 thumbnail.css("background-image", "url('" + e.target.result + "')");
             }
         } else {
             //css 변경
-            thumbnail.css("width", "0");
-            thumbnail.css("height", "0");
-            thumbnail.css("border", "0");
+            thumbnail.removeClass("ukp__active");
+            thumbnail.css("background-image", "");
         }
     },
 
@@ -126,19 +123,22 @@ var ukp__js_module = {
      * 이미지 업로드 후 출력
      * 성공시 이미지경로, 실패시 공백 출력
      * 
-     * require 2021.01.05
-     * @version 2021.01.05
+     * require 2021.03.25 input_file_init
+     * @version 2021.03.25
      * 
      * @param {object} my 자기자신
+     * @param {string} name name명
+     * @param {string} url 업로드url
      * @returns {undefined}
      */
-    add_markdown_image: function (my) {
+    add_markdown_image: function (my, name, url) {
         var module_texteditor = $(my).closest(".ukp__module_texteditor");
         var btn = module_texteditor.find(".ukp__js_module_btn");
         var btn_label = module_texteditor.find(".ukp__js_module_btn_label");
         var textarea = module_texteditor.find(".ukp__js_module_textarea");
         var markdown = module_texteditor.find(".ukp__js_module_markdown");
         var form = module_texteditor.find(".ukp__js_module_form");
+
         //썸네일 없는경우
         if (typeof ($(my)[0].files[0]) == "undefined") {
             return;
@@ -146,15 +146,32 @@ var ukp__js_module = {
         var file_obj = $(my)[0].files[0];
         var ext = file_obj.name.split(".").slice(-1)[0];
         if (ext.toLowerCase() == "jpg" || ext.toLowerCase() == "gif" || ext.toLowerCase() == "png" || ext.toLowerCase() == "jpeg") {
-            form.ajaxForm({
-                beforeSubmit: function (arr, $form, options) {
-                    btn.text("...");
-                    btn_label.attr("onclick", "return false");
+            var form_data = new FormData();
+            form_data.append(name, file_obj);
+            btn.text("...");
+            btn_label.attr("onclick", "return false");
+            $.ajax({
+                type: "post",
+                enctype: "multipart/form-data",
+                url: url,
+                data: form_data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            btn.text("..." + percentComplete + "%");
+                        }
+                    }, false);
+
+                    return xhr;
                 },
-                uploadProgress: function (event, position, total, percentComplete) {
-                    btn.text("..." + percentComplete + "%");
-                },
-                success: function (data, flag, status, $form) {
+                success: function (data) {
                     data = data.trim();
                     if (data == "") {
                         alert("이미지 업로드에 실패했습니다.");
@@ -167,18 +184,17 @@ var ukp__js_module = {
                             hljs.highlightBlock(block);
                         });
                     }
-                    $form[0].reset();
                     btn.text("이미지");
                     btn_label.removeAttr("onclick");
+                    ukp__js_common.input_file_init(my);
                 },
-                error: function (data, flag, status, $form) {
+                error: function (e) {
                     alert("이미지 업로드에 실패했습니다.");
-                    $form[0].reset();
                     btn.text("이미지");
                     btn_label.removeAttr("onclick");
+                    ukp__js_common.input_file_init(my);
                 }
             });
-            form.submit();
         } else {
             alert("jpg, gif, png 파일만 업로드 가능합니다.");
         }
@@ -537,10 +553,46 @@ var ukp__js_common = {
                 .replace(/&lt;/gi, "<")
                 .replace(/&amp;/gi, "&");
     },
+
+    /**
+     * 아이폰여부
+     * 
+     * require 2021.03.26
+     * @version 2021.03.26
+     * 
+     * @returns {boolean}
+     */
     is_iphone: function () {
         return (navigator.userAgent.indexOf("iPhone") != -1) || (navigator.userAgent.indexOf("iPod") != -1) || (navigator.userAgent.indexOf("iPad") != -1) ? true : false;
     },
+
+    /**
+     * 안드로이드여부
+     * 
+     * require 2021.03.26
+     * @version 2021.03.26
+     * 
+     * @returns {boolean}
+     */
     is_android: function () {
         return navigator.userAgent.indexOf("Android") != -1 ? true : false;
+    },
+
+    /**
+     * file 초기화
+     * 
+     * require 2021.03.26
+     * @version 2021.03.26
+     * 
+     * @param {object} file 셀렉터 또는 객체
+     */
+    input_file_init: function (file) {
+        var agent = navigator.userAgent.toLowerCase();
+        //ie인경우
+        if ((navigator.appName == 'Netscape' && navigator.userAgent.search('Trident') != -1) || (agent.indexOf("msie") != -1)) {
+            $(file).replaceWith($(file).clone(true));
+        } else {
+            $(file).val("");
+        }
     }
 };

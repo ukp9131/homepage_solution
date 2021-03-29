@@ -6,7 +6,7 @@
  * 접두어가 solution인경우 개발환경에 맞게 사용<br>
  * 
  * @author  ukp
- * @version 2021.03.15
+ * @version 2021.03.25
  * @since   PHP 5 >= 5.2.0, PHP 7, PHP 8
  */
 class Ukp {
@@ -731,6 +731,69 @@ class Ukp {
             return true;
         }
         return false;
+    }
+    
+    /**
+     * 페이지네이션 생성
+     * 
+     * require  2021.03.25 input_server input_request
+     * @version 2021.03.25
+     *
+     * @param  int    $total_row    총 데이터 갯수
+     * @param  int    $per_page     페이지네이션 1개당 데이터 갯수
+     * @param  string $query_string 페이지네이션 쿼리스트링 파라미터
+     * @param  int    $num_links    페이지네이션 번호출력 갯수(홀수권장)
+     * @return array                ["first_link"] - 가장처음 링크, <br>
+     *                              ["last_link"] - 가장끝 링크, <br>
+     *                              ["list"][]["link"] - 해당번호 링크, <br>
+     *                              ["list"][]["num"] - 해당번호, <br>
+     *                              ["list"][]["active_bool"] - 현재번호여부
+     */
+    function common_pagination($total_row = 0, $per_page = 10, $query_string = "page", $num_links = 3) {
+        $base_url = preg_replace("/[?&]{$query_string}=[0-9]+/", "", $this->input_server("request_uri"));
+        $current_page = intval($this->input_request($query_string)) / $per_page;
+        $total_cnt = 0;
+        $pagination["first_link"] = $base_url;
+        $pagination["last_link"] = $base_url . (strpos($base_url, "?") === false ? "?" : "&") . "{$query_string}=" . (($total_row - 1) - (($total_row - 1) % $per_page));
+        $pagination["list"] = array();
+        for ($i = $current_page - intval($num_links / 2); $total_cnt < $num_links && $total_row > ($i * $per_page); $i++) {
+            if ($i >= 0) {
+                $pagination["list"][] = array(
+                    "link" => $base_url . (strpos($base_url, "?") === false ? "?" : "&") . "{$query_string}=" . ($i * $per_page),
+                    "num" => $i + 1,
+                    "active_bool" => $i == $current_page ? true : false
+                );
+                $total_cnt++;
+            }
+        }
+        return $pagination;
+    }
+    
+    /**
+     * html encode(&amp; &lt; &gt; &quot;)
+     * 
+     * require  2021.01.05
+     * @version 2021.01.05
+     * 
+     * @param  string $html               html코드
+     * @param  bool   $double_encode_bool 이중변환여부
+     * @return string                     인코딩 텍스트
+     */
+    function common_html_encode($html, $double_encode_bool = true) {
+        return htmlspecialchars($html, ENT_COMPAT, null, $double_encode_bool);
+    }
+
+    /**
+     * html decode(&amp; &lt; &gt; &quot;)
+     * 
+     * require  2021.01.05
+     * @version 2021.01.05
+     * 
+     * @param  string $text 인코딩 텍스트
+     * @return string       html코드
+     */
+    function common_html_decode($text) {
+        return htmlspecialchars_decode($text, ENT_COMPAT);
     }
 
     /**
@@ -1757,8 +1820,8 @@ class Ukp {
      * null쿼리인경우 키가 is, 값이 null 또는 not null
      * 일반쿼리인경우 키에 연산자, 연산자 없는경우 =
      * 
-     * require  2020.11.18
-     * @version 2020.11.18
+     * require  2021.03.25
+     * @version 2021.03.25
      * 
      * @param  string $where_arr where 배열(키값에 연산자 사용 가능)
      * @return array             where 정보<br>
@@ -1771,7 +1834,9 @@ class Ukp {
             "binding" => array()
         );
         foreach ($where_arr as $k => $v) {
-            $key_arr = explode(" ", $k);
+            $key_arr = explode(" ", str_replace("`", "", $k));
+            $field_arr = explode(".", $key_arr[0]);
+            $field = "`{$field_arr[0]}`" . (isset($field_arr[1]) ? ".`{$field_arr[1]}`" : "");
             $operator = isset($key_arr[1]) ? $key_arr[1] : "=";
             //in쿼리
             if (is_array($v)) {
@@ -1782,7 +1847,7 @@ class Ukp {
                     //in
                     $operator = "in";
                 }
-                $return_arr["where"] .= " and {$key_arr[0]} {$operator}(";
+                $return_arr["where"] .= " and {$field} {$operator}(";
                 foreach ($v as $kk => $vv) {
                     if ($kk != "0") {
                         $return_arr["where"] .= ", ";
@@ -1798,99 +1863,15 @@ class Ukp {
                 if (!in_array(strtolower($v), array("null", "not null"))) {
                     $operator = "=";
                 }
-                $return_arr["where"] .= " and {$key_arr[0]} {$operator} {$v}";
+                $return_arr["where"] .= " and {$field} {$operator} {$v}";
             }
             //일반쿼리
             else {
-                $return_arr["where"] .= " and {$key_arr[0]} {$operator} ?";
+                $return_arr["where"] .= " and {$field} {$operator} ?";
                 $return_arr["binding"][] = $v;
             }
         }
         return $return_arr;
-    }
-
-    /**
-     * 주 테이블 정보<br>
-     * 삭제여부는 항상 n<br>
-     * 테이블별로 임의로 추가해서 사용
-     * 
-     * require  2020.11.16 solution_create_where, db_row_array
-     * @version 2020.11.11
-     * 
-     * @param  string $table     테이블명
-     * @param  int    $idx       기본키(count(*)를 위해 필수)
-     * @param  string $where_arr where문
-     * @param  string $database  사용 데이터베이스
-     * @return array             테이블 정보
-     */
-    function solution_table_info($table, $idx, $where_arr = array(), $database = "default") {
-        $where_info = $this->solution_create_where($where_arr);
-        if($table == "admin") {
-            $sql = "
-                select
-                    count(*) as `cnt`,
-                    `admin_idx`,
-                    `id`,
-                    `pw`
-                from
-                    `admin` as `a`
-                where
-                    `a`.`admin_idx` = ? and
-                    `a`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        }
-        $binding = array_merge(array($idx), $where_info["binding"]);
-        $result = $this->db_row_array($sql, $binding, $database);
-        return $result;
-    }
-
-    /**
-     * 주 테이블 리스트<br>
-     * 삭제여부는 항상 n<br>
-     * 테이블별로 임의로 추가해서 사용<br>
-     * 컬럼명에 cnt 사용불가(limit 사용시 총 갯수 cnt에 저장)
-     * 
-     * require  2020.11.25 solution_create_where, db_row_array, db_result_array, common_nl2space
-     * @version 2020.11.25
-     * 
-     * @param  string $table        테이블명
-     * @param  string $where_arr    where문
-     * @param  string $limit_arr    ["start"] - 시작, ["limit"] - 갯수
-     * @param  string $order_by_arr 정렬 배열(기본정렬인경우 빈배열)
-     * @param  string $database     사용 데이터베이스
-     * @return array                테이블 리스트<br>
-     *                              ["cnt"] - 총 쿼리갯수<br>
-     *                              ["list"] - 리스트
-     */
-    function solution_table_list($table, $where_arr = array(), $limit_arr = array(), $order_by_arr = array(), $database = "default") {
-        $where_info = $this->solution_create_where($where_arr);
-
-        $binding = $where_info["binding"];
-        //order by 있는경우
-        if (is_array($order_by_arr) && count($order_by_arr) > 0) {
-            $sql = array_shift(explode("order by", $sql));
-            $sql .= " order by ";
-            foreach ($order_by_arr as $k => $v) {
-                if ($k > 0) {
-                    $sql .= ", ";
-                }
-                $sql .= $v;
-            }
-        }
-        //limit 있는경우
-        if (isset($limit_arr["limit"])) {
-            //count 쿼리
-            $count_sql = preg_replace("/^select (.*?) from /", "select count(*) as `cnt` from ", trim($this->common_nl2space($sql)), 1);
-            $result = $this->db_row_array($count_sql, $binding, $database);
-            $cnt = $result["cnt"];
-            $sql .= " limit " . (isset($limit_arr["start"]) ? "{$limit_arr["start"]}, " : "") . $limit_arr["limit"];
-        }
-        $result = $this->db_result_array($sql, $binding, $database);
-        return array(
-            "cnt" => isset($cnt) ? $cnt : count($result),
-            "list" => $result
-        );
     }
 
     /**
@@ -2279,6 +2260,338 @@ class Ukp {
         $this->common_log_message("Mailer Error: {$phpmailer->ErrorInfo}", "error");
         return false;
     }
+    /**
+     * 주 테이블 정보<br>
+     * 삭제여부는 항상 n<br>
+     * 테이블별로 임의로 추가해서 사용
+     * 
+     * require  2020.11.16 solution_create_where, db_row_array
+     * @version 2020.11.11
+     * 
+     * @param  string $table     테이블명
+     * @param  int    $idx       기본키(count(*)를 위해 필수)
+     * @param  string $where_arr where문
+     * @param  string $database  사용 데이터베이스
+     * @return array             테이블 정보
+     */
+    function solution_table_info($table, $idx, $where_arr = array(), $database = "default") {
+        $where_info = $this->solution_create_where($where_arr);
+        if($table == "admin") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `a`.`admin_idx`,
+                    `a`.`id`,
+                    `a`.`pw`
+                from
+                    `admin` as `a`
+                where
+                    `a`.`admin_idx` = ? and
+                    `a`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if($table == "admin_log") {
+            
+        } else if($table == "board") {
+            $sql = "
+                select
+                    `b`.`board_idx`,
+                    `b`.`category_idx`,
+                    `b`.`member_idx`,
+                    `b`.`title`,
+                    `b`.`content`,
+                    case
+                        when `b`.`admin_flag` = 'y' then '관리자'
+                        when `b`.`member_idx` is null then `b`.`name`
+                        else `m`.`nickname`
+                    end as `name`,
+                    `b`.`view_cnt`,
+                    `b`.`private_flag`,
+                    `b`.`top_flag`,
+                    `b`.`admin_flag`,
+                    `b`.`insert_date`,
+                    `b`.`insert_time`,
+                    `b`.`update_date`,
+                    `b`.`update_time`,
+                    `c`.`title` as `category_title`
+                from
+                    `board` as `b`
+                left join
+                    `category` as `c`
+                on
+                    `b`.`category_idx` = `c`.`category_idx`
+                left join
+                    `member` as `m`
+                on
+                    `b`.`member_idx` = `m`.`member_idx`
+                where
+                    `b`.`board_idx` = ? and
+                    `b`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if($table == "category") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `c`.`category_idx`,
+                    `c`.`parent_category_idx`,
+                    `c`.`file_name`,
+                    `c`.`manager_file_name`,
+                    `c`.`title`,
+                    `c`.`sort`,
+                    `c`.`board_flag`,
+                    `c`.`comment_flag`,
+                    `c`.`editor_flag`,
+                    `c`.`file_flag`
+                from
+                    `category` as `c`
+                where
+                    `c`.`category_idx` = ? and
+                    `c`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if($table == "code") {
+            
+        } else if($table == "comment") {
+            
+        } else if($table == "connect_log") {
+            
+        } else if($table == "file") {
+            $sql = "
+                select
+                    `f`.`file_idx`,
+                    `f`.`board_idx`,
+                    `f`.`origin_name`,
+                    `f`.`server_path`,
+                    `f`.`web_path`,
+                    `f`.`size`,
+                    `f`.`insert_date`,
+                    `f`.`insert_time`
+                from
+                    `file` as `f`
+                where
+                    `file_idx` = ? and
+                    `f`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if($table == "image") {
+            
+        } else if($table == "member") {
+            
+        }
+        $binding = array_merge(array($idx), $where_info["binding"]);
+        $result = $this->db_row_array($sql, $binding, $database);
+        return $result;
+    }
+
+    /**
+     * 주 테이블 리스트<br>
+     * 삭제여부는 항상 n<br>
+     * 테이블별로 임의로 추가해서 사용<br>
+     * 
+     * require  2021.03.25 solution_create_where, db_result_array
+     * @version 2021.03.25
+     * 
+     * @param  string $table        테이블명
+     * @param  string $where_arr    where문
+     * @param  string $limit_arr    ["start"] - 시작, ["limit"] - 갯수
+     * @param  string $order_by_arr 정렬 배열(기본정렬인경우 빈배열)
+     * @param  string $database     사용 데이터베이스
+     * @return array                테이블 리스트
+     */
+    function solution_table_list($table, $where_arr = array(), $limit_arr = array(), $order_by_arr = array(), $database = "default") {
+        $where_info = $this->solution_create_where($where_arr);
+        if($table == "admin") {
+            
+        } else if($table == "admin_log") {
+            
+        } else if($table == "board") {
+            $sql = "
+                select
+                    `b`.`board_idx`,
+                    `b`.`member_idx`,
+                    `b`.`title`,
+                    case
+                        when `b`.`admin_flag` = 'y' then '관리자'
+                        when `b`.`member_idx` is null then `b`.`name`
+                        else `m`.`nickname`
+                    end as `name`,
+                    `b`.`view_cnt`,
+                    `b`.`private_flag`,
+                    `b`.`top_flag`,
+                    `b`.`admin_flag`,
+                    `b`.`insert_date`,
+                    `b`.`insert_time`,
+                    `b`.`update_date`,
+                    `b`.`update_time`
+                from
+                    `board` as `b`
+                left join
+                    `member` as `m`
+                on
+                    `b`.`member_idx` = `m`.`member_idx`
+                where
+                    `b`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `b`.`board_idx` desc
+            ";
+        } else if($table == "category") {
+            $sql = "
+                select
+                    `c`.`category_idx`,
+                    `c`.`parent_category_idx`,
+                    `c`.`file_name`,
+                    `c`.`manager_file_name`,
+                    `c`.`title`,
+                    `c`.`sort`,
+                    `c`.`board_flag`,
+                    `c`.`comment_flag`,
+                    `c`.`editor_flag`,
+                    `c`.`file_flag`
+                from
+                    `category` as `c`
+                where
+                    `c`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `c`.`sort`,
+                    `c`.`category_idx`
+            ";
+        } else if($table == "code") {
+            
+        } else if($table == "comment") {
+            $sql = "
+                select
+                    `c3`.`comment_idx`,
+                    `c3`.`parent_comment_idx`,
+                    `c3`.`board_idx`,
+                    `c3`.`member_idx`,
+                    `c3`.`content`,
+                    `c3`.`pw`,
+                    case
+                        when `c3`.`admin_flag` = 'y' then '관리자'
+                        when `c3`.`member_idx` is null then `c3`.`name`
+                        else `m`.`nickname`
+                    end as `name`,
+                    `c3`.`private_flag`,
+                    `c3`.`admin_flag`,
+                    `c3`.`insert_date`,
+                    `c3`.`insert_time`
+                from
+                    `comment` as `c3`
+                left join
+                    `member` as `m`
+                on
+                    `c3`.`member_idx` = `m`.`member_idx`
+                where
+                    `c3`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `c3`.`comment_idx` desc
+            ";
+        } else if($table == "connect_log") {
+            
+        } else if($table == "file") {
+            $sql = "
+                select
+                    `f`.`file_idx`,
+                    `f`.`board_idx`,
+                    `f`.`origin_name`,
+                    `f`.`server_path`,
+                    `f`.`web_path`,
+                    `f`.`size`,
+                    `f`.`insert_date`,
+                    `f`.`insert_time`
+                from
+                    `file` as `f`
+                where
+                    `f`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `f`.`file_idx` desc
+            ";
+        } else if($table == "image") {
+            
+        } else if($table == "member") {
+            
+        }
+        $binding = $where_info["binding"];
+        //order by 있는경우
+        if (is_array($order_by_arr) && count($order_by_arr) > 0) {
+            $sql = array_shift(explode("order by", $sql));
+            $sql .= " order by ";
+            foreach ($order_by_arr as $k => $v) {
+                if ($k > 0) {
+                    $sql .= ", ";
+                }
+                $sql .= $v;
+            }
+        }
+        //limit 있는경우
+        if (isset($limit_arr["limit"])) {
+            $sql .= " limit " . (isset($limit_arr["start"]) ? "{$limit_arr["start"]}, " : "") . $limit_arr["limit"];
+        }
+        $result = $this->db_result_array($sql, $binding, $database);
+        return $result;
+    }
+    
+    /**
+     * 주 테이블 cnt쿼리<br>
+     * 삭제여부는 항상 n<br>
+     * 테이블별로 임의로 추가해서 사용
+     * 
+     * require  2021.03.25 solution_create_where, db_row_array
+     * @version 2021.03.25
+     * 
+     * @param  string $table     테이블명
+     * @param  string $where_arr where문
+     * @param  string $database  사용 데이터베이스
+     * @return array             테이블 cnt쿼리 결과
+     */
+    function solution_table_cnt($table, $where_arr = array(), $database = "default") {
+        $where_info = $this->solution_create_where($where_arr);
+        if($table == "admin") {
+            
+        } else if($table == "admin_log") {
+            
+        } else if($table == "board") {
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `board` as `b`
+                where
+                    `b`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if($table == "category") {
+            
+        } else if($table == "code") {
+            
+        } else if($table == "comment") {
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `comment` as `c3`
+                where
+                    `c3`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if($table == "connect_log") {
+            
+        } else if($table == "file") {
+            
+        } else if($table == "image") {
+            
+        } else if($table == "member") {
+            
+        }
+        $binding = $where_info["binding"];
+        $result = $this->db_row_array($sql, $binding, $database);
+        return $result;
+    }
 
     /**
      * 코드배열 반환
@@ -2314,5 +2627,63 @@ class Ukp {
                 exit;
             }
         }
+    }
+    
+    /**
+     * 카테고리 계층 리스트
+     * 
+     */
+    function solution_category_list() {
+        $where_arr = array(
+            "c.parent_category_idx is" => "not null"
+        );
+        $result = $this->solution_table_list("category", $where_arr);
+        $child_arr = array();
+        foreach($result as $temp) {
+            $child_arr[$temp["parent_category_idx"]][] = $temp;
+        }
+        $where_arr = array(
+            "c.parent_category_idx is" => "null"
+        );
+        $result = $this->solution_table_list("category", $where_arr);
+        $parent_arr = array();
+        foreach($result as $k => $v) {
+            $parent_arr[$k] = $v;
+            $parent_arr[$k]["child"] = isset($child_arr[$v["category_idx"]]) ? $child_arr[$v["category_idx"]] : array();
+        }
+        return $parent_arr;
+    }
+    
+    /**
+     * 댓글 계층 리스트
+     * 
+     */
+    function solution_comment_list($board_idx) {
+        $where_arr = array(
+            "c3.parent_comment_idx is" => "not null",
+            "c3.board_idx" => $board_idx
+        );
+        $order_arr = array(
+            "c3.comment_idx"
+        );
+        $result = $this->solution_table_list("comment", $where_arr, array(), $order_arr);
+        $child_arr = array();
+        foreach($result as $temp) {
+            $child_arr[$temp["parent_comment_idx"]][] = $temp;
+        }
+        $where_arr = array(
+            "c3.parent_comment_idx is" => "null",
+            "c3.board_idx" => $board_idx
+        );
+        $order_arr = array(
+            "c3.comment_idx"
+        );
+        $result = $this->solution_table_list("comment", $where_arr, array(), $order_arr);
+        $parent_arr = array();
+        foreach($result as $k => $v) {
+            $parent_arr[$k] = $v;
+            $parent_arr[$k]["child"] = isset($child_arr[$v["comment_idx"]]) ? $child_arr[$v["comment_idx"]] : array();
+        }
+        return $parent_arr;
     }
 }

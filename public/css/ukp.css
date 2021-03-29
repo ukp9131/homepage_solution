@@ -164,6 +164,73 @@ inline-block 레이아웃
 
 
 /**
+모바일테이블 레이아웃
+
+<div class="ukp__module_layout_table_m">
+    <div class="ukp__row">
+        <div class="ukp__num">
+            정렬<br>1
+        </div>
+        <div class="ukp__content">
+            <div class="ukp__left">항목1</div>
+            <div class="ukp__right">항목2</div>
+            <div class="ukp__center">항목3</div>
+        </div>
+    </div>
+    <div class="ukp__row">
+        <div class="ukp__num">
+            정렬<br>2
+        </div>
+        <div class="ukp__content">
+            <div class="ukp__left">항목1</div>
+            <div class="ukp__right">항목2</div>
+            <div class="ukp__center">항목3</div>
+        </div>
+    </div>
+</div>
+*/
+.ukp__module_layout_table_m {
+    border-top: 0.1875rem solid black;
+}
+.ukp__module_layout_table_m > .ukp__row {
+    border-bottom: 0.0625rem solid black;
+    display: flex;
+    padding: 0.625rem;
+    padding-left: 0.625rem;
+}
+.ukp__module_layout_table_m > .ukp__row > .ukp__num {
+    flex: none;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding-right: 0.625rem;
+    text-align: center;
+}
+.ukp__module_layout_table_m > .ukp__row > .ukp__content {
+    flex: 1;
+    font-size: 0.75rem;
+}
+.ukp__module_layout_table_m > .ukp__row > .ukp__content > div {
+    padding-bottom: 0.3125rem;
+}
+.ukp__module_layout_table_m > .ukp__row > .ukp__content > div:first-child {
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+.ukp__module_layout_table_m > .ukp__row > .ukp__content > div:last-child {
+    padding-bottom: 0;
+}
+.ukp__module_layout_table_m > .ukp__row > .ukp__content > .ukp__left {
+    text-align: left;
+}
+.ukp__module_layout_table_m > .ukp__row > .ukp__content > .ukp__right {
+    text-align: right;
+}
+.ukp__module_layout_table_m > .ukp__row > .ukp__content > .ukp__center {
+    text-align: center;
+}
+
+
+/**
 체크박스
 
 <label class="ukp__module_checkbox">
@@ -382,9 +449,19 @@ inline-block 레이아웃
 /**
 텍스트박스
 
-<textarea class="ukp__module_textarea"></textarea>
+<div class="ukp__module_textarea">
+    <div class="ukp__label">내용</div>
+    <textarea class="ukp__textarea"></textarea>
+</div>
 */
 .ukp__module_textarea {
+    position: relative;
+}
+.ukp__module_textarea > .ukp__label {
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+.ukp__module_textarea > .ukp__textarea {
     display: block;
     width: 100%;
     height: 18.75rem;
@@ -392,7 +469,7 @@ inline-block 레이아웃
     border: 0.0625rem solid black;
     resize: none;
 }
-.ukp__module_textarea:focus {
+.ukp__module_textarea > .ukp__textarea:focus {
     outline: none;
 }
 
@@ -425,6 +502,11 @@ inline-block 레이아웃
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
+}
+.ukp__module_file > .ukp__active {
+    width: 12.5rem;
+    height: 12.5rem;
+    border: 0.0625rem solid black;
 }
 .ukp__module_file > .ukp__list {
     font-size: 0;
@@ -498,12 +580,12 @@ form에 이미지 업로드 경로 지정, file name 속성 지정
         <textarea class="ukp__textarea ukp__js_module_textarea"></textarea>
     </div>
     <div class="ukp__content">
-        <form action="_upload.php" method="post" class="ukp__left ukp__js_module_form" enctype="multipart/form-data">
+        <div class="ukp__left ukp__js_module_form">
             <label class="ukp__label ukp__js_module_btn_label">
-                <input type="file" name="file" class="ukp__file" onchange="ukp__js_module.add_markdown_image(this)">
+                <input type="file" class="ukp__file" onchange="ukp__js_module.add_markdown_image(this, 'file', '_upload.php')">
                 <div class="ukp__btn ukp__js_module_btn">이미지</div>
             </label>
-        </form>
+        </div>
         <div class="ukp__right">
             <label class="ukp__markdown">
                 <input type="checkbox" class="ukp__check" onchange="ukp__js_module.toggle_markdown(this)">
@@ -696,15 +778,17 @@ markdown
 .ukp__module_select {
     display: inline-block;
     font-size: 0;
+    width: 10rem;
 }
 .ukp__module_select > .ukp__title {
     font-size: 0.75rem;
     font-weight: bold;
 }
 .ukp__module_select > .ukp__select {
+    display: block;
     box-sizing: border-box;
     border: 1px solid black;
-    width: 10rem;
+    width: 100%;
     height: 2.5rem;
     border-radius: 0;
     background-color: white;
@@ -713,6 +797,7 @@ markdown
 .ukp__module_select > .ukp__select:focus {
     outline: none;
 }
+
 
 /**
 페이지네이션
@@ -726,6 +811,7 @@ markdown
 </div>
 */
 .ukp__module_pagination {
+    padding: 1.25rem 0;
     font-size: 0;
     text-align: center;
 }

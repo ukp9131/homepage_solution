@@ -55,6 +55,24 @@
             .ukp__module_input > .ukp__content {
                 border: 0.0625rem solid #dee2e6;
             }
+            .ukp__module_select {
+                width: 100%;
+            }
+            .ukp__module_select > .ukp__select {
+                border: 0.0625rem solid #dee2e6;
+            }
+            .ukp__module_texteditor > .ukp__area {
+                border: 0.0625rem solid #dee2e6;
+            }
+            .ukp__module_file > .ukp__active {
+                border: 0.0625rem solid #dee2e6;
+            }
+            .ukp__module_markdown {
+                border: 0.0625rem solid #dee2e6;
+            }
+            .ukp__module_textarea > .ukp__textarea {
+                border: 0.0625rem solid #dee2e6;
+            }
             /* module end */
             * {
                 margin: 0;
@@ -140,6 +158,10 @@
                 border-radius: 0.3125rem;
             }
             .ukp__box_wrap > .ukp__pc > .ukp__menu > .ukp__content > .ukp__href:hover {
+                background-color: #c2c7d0;
+                color: #343a40;
+            }
+            .ukp__box_wrap > .ukp__pc > .ukp__menu > .ukp__content > .ukp__href.ukp__active {
                 background-color: #c2c7d0;
                 color: #343a40;
             }
@@ -258,6 +280,10 @@
                 background-color: #c2c7d0;
                 color: #343a40;
             }
+            .ukp__box_wrap > .ukp__mobile > .ukp__menu > .ukp__menu > .ukp__content > .ukp__href.ukp__active {
+                background-color: #c2c7d0;
+                color: #343a40;
+            }
             @media screen and (max-width: 1024px) {
                 .ukp__box_wrap > .ukp__pc {
                     display: none;
@@ -284,12 +310,13 @@
                         </div>
                         <div class="ukp__content">
                             <!--<div class="ukp__title">메뉴</div>-->
-                            <a href="main.php" class="ukp__href">홈</a>
-                            <a href="category_type_list.php" class="ukp__href">메뉴타입관리</a>
+                            <a href="main.php" class="ukp__href<?= $data["remap_base"] == "main.php" ? " ukp__active" : "" ?>">홈</a>
                             <a href="category_list.php" class="ukp__href">메뉴관리</a>
-                            <a href="board_list.php" class="ukp__href">게시판관리</a>
                             <a href="comment_list.php" class="ukp__href">댓글관리</a>
                             <a href="member_list.php" class="ukp__href">회원관리</a>
+                            <a href="code_list.php" class="ukp__href">코드관리</a>
+                            <a href="file_list.php" class="ukp__href">파일관리</a>
+                            <a href="image_list.php" class="ukp__href">이미지관리</a>
                             <a href="stat.php" class="ukp__href">통계</a>
                             <a href="admin_log_list.php" class="ukp__href">변경이력</a>
                         </div>
@@ -327,12 +354,13 @@
                             </div>
                             <div class="ukp__content">
                                 <!--<div class="ukp__title">메뉴</div>-->
-                                <a href="main.php" class="ukp__href">홈</a>
-                                <a href="category_type_list.php" class="ukp__href">메뉴타입관리</a>
+                                <a href="main.php" class="ukp__href<?= $data["remap_base"] == "main.php" ? " ukp__active" : "" ?>">홈</a>
                                 <a href="category_list.php" class="ukp__href">메뉴관리</a>
-                                <a href="board_list.php" class="ukp__href">게시판관리</a>
                                 <a href="comment_list.php" class="ukp__href">댓글관리</a>
                                 <a href="member_list.php" class="ukp__href">회원관리</a>
+                                <a href="code_list.php" class="ukp__href">코드관리</a>
+                                <a href="file_list.php" class="ukp__href">파일관리</a>
+                                <a href="image_list.php" class="ukp__href">이미지관리</a>
                                 <a href="stat.php" class="ukp__href">통계</a>
                                 <a href="admin_log_list.php" class="ukp__href">변경이력</a>
                             </div>
@@ -349,16 +377,16 @@
         </div>
         <script>
             var ukp__js_wrap = {
-                menu_toggle: function() {
+                menu_toggle: function () {
                     $(".ukp__js_wrap_menu").toggle();
                 },
-                logout: function() {
-                    if(!confirm("정말로 로그아웃 하시겠습니까?")) {
+                logout: function () {
+                    if (!confirm("정말로 로그아웃 하시겠습니까?")) {
                         return false;
                     }
                     ukp__js_common.ajax("_logout.php", {
-                        
-                    }, function(data) {
+
+                    }, function (data) {
                         location.replace("index.php");
                     });
                     return false;

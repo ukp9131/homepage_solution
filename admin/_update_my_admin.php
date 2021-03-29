@@ -29,12 +29,12 @@ if ($result["cnt"] < 1) {
 }
 
 $row_arr = array(
-    "id" => $id,
-    "pw" => $pw
+    "id" => $update_id,
+    "pw" => $update_pw
 );
 $where_arr = array(
     "admin_idx" => $admin_idx
 );
-$ukp->solution_update("admin", $where_arr, $where_arr);
+$ukp->solution_update("admin", $row_arr, $where_arr);
 
 echo "1";
