@@ -154,7 +154,7 @@
                             <?= nl2br($temp["content"]) ?>
                         </div>
                         <div class="ukp__option">
-                            <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp["comment_idx"] ?>', '<?= $temp["private_flag"] ?>')">수정</a>
+                            <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp["comment_idx"] ?>', '<?= urlencode($temp["content"]) ?>', '<?= $temp["private_flag"] ?>')">수정</a>
                             <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp["comment_idx"] ?>')">삭제</a>
                         </div>
                     </div>
@@ -168,7 +168,7 @@
                                 <?= nl2br($temp2["content"]) ?>
                             </div>
                             <div class="ukp__option">
-                                <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp2["comment_idx"] ?>', '<?= $temp2["private_flag"] ?>')">수정</a>
+                                <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp2["comment_idx"] ?>', '<?= urlencode($temp2["content"]) ?>', '<?= $temp2["private_flag"] ?>')">수정</a>
                                 <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp2["comment_idx"] ?>')">삭제</a>
                             </div>
                         </div>
@@ -182,7 +182,7 @@
                 <input type="hidden" class="ukp__js_content_confirm_text" value="작성하시겠습니까?">
                 <div class="ukp__module_textarea">
                     <div class="ukp__label ukp__js_content_label">댓글작성</div>
-                    <textarea class="ukp__textarea" name="content" required=""></textarea>
+                    <textarea class="ukp__textarea ukp__js_content_content" name="content" required=""></textarea>
                 </div>
                 <div class="ukp__check_list">
                     <label class="ukp__module_checkbox">
@@ -226,9 +226,11 @@
             $(".ukp__js_content_label").html("답글작성 (" + name + ")");
             $(".ukp__js_content_cancel_btn").show();
             $(".ukp__js_content_private_flag").prop("checked", false);
+            $(".ukp__js_content_content").val("");
+            $("html").scrollTop($(".ukp__js_content_form").offset().top);
             return false;
         },
-        comment_modify: function (comment_idx, private_flag) {
+        comment_modify: function (comment_idx, content, private_flag) {
             $(".ukp__js_content_form").attr("action", "_update_comment.php");
             $(".ukp__js_content_parent_comment_idx").val("");
             $(".ukp__js_content_comment_idx").val(comment_idx);
@@ -236,6 +238,8 @@
             $(".ukp__js_content_label").html("답글수정");
             $(".ukp__js_content_cancel_btn").show();
             $(".ukp__js_content_private_flag").prop("checked", private_flag == "y" ? true : false);
+            $(".ukp__js_content_content").val(decodeURI(content));
+            $("html").scrollTop($(".ukp__js_content_form").offset().top);
             return false;
         },
         comment_cancel: function () {
@@ -246,6 +250,7 @@
             $(".ukp__js_content_label").html("댓글작성");
             $(".ukp__js_content_cancel_btn").hide();
             $(".ukp__js_content_private_flag").prop("checked", false);
+            $(".ukp__js_content_content").val("");
             return false;
         },
         comment_delete: function (comment_idx) {
