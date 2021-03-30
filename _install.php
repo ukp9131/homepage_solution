@@ -47,6 +47,19 @@ CREATE TABLE if not exists {$prefix}admin
 ";
 $ukp->db_query($sql);
 $sql = "
+CREATE TABLE {$prefix}author
+(
+    `author_idx`   int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
+    `name`         varchar(191)    NULL        COMMENT '작가명', 
+    `insert_date`  date            NULL        COMMENT '입력일', 
+    `insert_time`  time            NULL        COMMENT '입력시', 
+    `delete_flag`  varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 
+    index (`name`),
+    PRIMARY KEY (author_idx)
+) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collate} COMMENT='작가(a2)'
+";
+$ukp->db_query($sql);
+$sql = "
 CREATE TABLE if not exists {$prefix}admin_log
 (
     `admin_log_idx`  int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
@@ -151,6 +164,23 @@ CREATE TABLE if not exists {$prefix}comment
     index (`parent_comment_idx`),
     PRIMARY KEY (comment_idx)
 ) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collate} COMMENT='댓글(c3)'
+";
+$ukp->db_query($sql);
+$sql = "
+CREATE TABLE {$prefix}comic
+(
+    `comic_idx`    int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
+    `author_idx`   int(11)         NULL        COMMENT '작가', 
+    `title`        varchar(191)    NULL        COMMENT '제목', 
+    `page`         int(11)         NULL        DEFAULT 0 COMMENT '페이지', 
+    `view_cnt`     int(11)         NULL        DEFAULT 0 COMMENT '조회수', 
+    `insert_date`  date            NULL        COMMENT '입력일', 
+    `insert_time`  time            NULL        COMMENT '입력시', 
+    `delete_flag`  varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 
+    index (`author_idx`),
+    index (`title`),
+    PRIMARY KEY (comic_idx)
+) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collate} COMMENT='만화책(c4)'
 ";
 $ukp->db_query($sql);
 $sql = "
