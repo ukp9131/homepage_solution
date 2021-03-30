@@ -2477,7 +2477,9 @@ class Ukp {
                     `c3`.`private_flag`,
                     `c3`.`admin_flag`,
                     `c3`.`insert_date`,
-                    `c3`.`insert_time`
+                    `c3`.`insert_time`,
+                    `c3`.`update_date`,
+                    `c3`.`update_time`
                 from
                     `comment` as `c3`
                 left join

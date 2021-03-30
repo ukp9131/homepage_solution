@@ -32,8 +32,92 @@
     .ukp__box_content > .ukp__board > .ukp__btn_list {
         text-align: right;
         font-size: 0;
+        padding: 0.625rem 0;
+        border-top: 0.0625rem solid black;
     }
     .ukp__box_content > .ukp__board > .ukp__btn_list > .ukp__module_btn {
+        display: inline-block;
+        margin-left: 0.625rem;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment {
+        padding-top: 1.25rem;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_title {
+        border-bottom: 0.125rem solid black;
+        font-size: 0.875rem;
+        padding: 0.625rem 0;
+        font-weight: bold;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list {
+        
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row {
+        border-bottom: 0.0625rem solid #dee2e6;
+        padding: 0.625rem 0;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__child {
+        padding-left: 1.25rem;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title {
+        font-size: 0;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__name {
+        display: inline-block;
+        font-size: 0.875rem;
+        font-weight: bold;
+        padding-right: 0.625rem;
+        vertical-align: middle;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__date {
+        display: inline-block;
+        font-size: 0.875rem;
+        padding-right: 0.625rem;
+        vertical-align: middle;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__href {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: bold;
+        vertical-align: middle;
+        text-decoration: underline;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__content {
+        padding: 0.625rem 0;
+        font-size: 0.875rem;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__option {
+        font-size: 0;
+        text-align: right;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__option > .ukp__href {
+        font-size: 0.75rem;
+        font-weight: bold;
+        text-decoration: underline;
+        display: inline-block;
+        margin-left: 0.625rem;
+        vertical-align: middle;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__form {
+        padding-top: 0.625rem;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__form > .ukp__module_textarea > .ukp__textarea {
+        height: 3.125rem;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__form > .ukp__btn_list {
+        padding: 0.625rem 0;
+        text-align: right;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__form > .ukp__btn_list > .ukp__module_btn {
+        display: inline-block;
+        margin-left: 0.625rem;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__btn_list {
+        text-align: right;
+        font-size: 0;
+        padding: 0.625rem 0;
+        border-top: 0.0625rem solid black;
+    }
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__btn_list > .ukp__module_btn {
         display: inline-block;
         margin-left: 0.625rem;
     }
@@ -46,7 +130,7 @@
         <div class="ukp__info">
             <div class="ukp__row"><?= $data["board"]["title"] ?></div>
             <div class="ukp__row">조회: <?= $data["board"]["view_cnt"] ?></div>
-            <div class="ukp__row"><?= $data["board"]["insert_date"] ?> <?= $data["board"]["update_date"] == "" ? "" : "(수정일: {$data["board"]["update_date"]})" ?></div>
+            <div class="ukp__row"><?= $data["board"]["insert_date"] ?> <?= $data["board"]["update_date"] == "" ? "" : " (수정일: {$data["board"]["update_date"]})" ?></div>
         </div>
         <div class="ukp__content">
             <div class="ukp__module_markdown markdown-body"><?= $data["board"]["content"] ?></div>
@@ -63,7 +147,7 @@
                     <div class="ukp__row">
                         <div class="ukp__title">
                             <div class="ukp__name"><?= $temp["name"] ?></div>
-                            <div class="ukp__date"><?= $temp["insert_date"] ?></div>
+                            <div class="ukp__date"><?= $temp["insert_date"] ?><?= $temp["update_date"] == "" ? "" : " (수정됨)" ?></div>
                             <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_answer('<?= $temp["comment_idx"] ?>', '<?= $temp["name"] ?>')">답글</a>
                         </div>
                         <div class="ukp__content">
@@ -78,13 +162,13 @@
                         <div class="ukp__row ukp__child">
                             <div class="ukp__title">
                                 <div class="ukp__name"><?= $temp2["name"] ?></div>
-                                <div class="ukp__date"><?= $temp2["insert_date"] ?></div>
+                                <div class="ukp__date"><?= $temp2["insert_date"] ?><?= $temp2["update_date"] == "" ? "" : " (수정됨)" ?></div>
                             </div>
                             <div class="ukp__content">
                                 <?= nl2br($temp2["content"]) ?>
                             </div>
                             <div class="ukp__option">
-                                <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp2["comment_idx"] ?>', '<?= $temp["private_flag"] ?>')">수정</a>
+                                <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp2["comment_idx"] ?>', '<?= $temp2["private_flag"] ?>')">수정</a>
                                 <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp2["comment_idx"] ?>')">삭제</a>
                             </div>
                         </div>
@@ -104,7 +188,7 @@
                     <label class="ukp__module_checkbox">
                         <input type="checkbox" class="ukp__check ukp__js_content_private_flag" name="private_flag" value="y">
                         <div class="ukp__checkbox"></div>
-                        <div class="ukp__text">체크박스</div>
+                        <div class="ukp__text">비공개</div>
                     </label>
                 </div>
                 <div class="ukp__btn_list">
