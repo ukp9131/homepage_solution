@@ -220,7 +220,7 @@ CREATE TABLE if not exists {$prefix}member
     `nickname`         varchar(191)    NULL        COMMENT '닉네임', 
     `name`             varchar(191)    NULL        COMMENT '이름', 
     `birthday`         date            NULL        COMMENT '생년월일', 
-    `gender`           varchar(1)      NULL        DEFAULT 'n' COMMENT '성별', 
+    `gender`           varchar(1)      NULL        DEFAULT 'n' COMMENT 'm-남,w-여', 
     `last_login_date`  date            NULL        COMMENT '마지막로그인일', 
     `last_login_time`  time            NULL        COMMENT '마지막로그인시', 
     `insert_date`      date            NULL        COMMENT '입력일', 

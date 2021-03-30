@@ -2295,6 +2295,7 @@ class Ukp {
         } else if($table == "board") {
             $sql = "
                 select
+                    count(*) as `cnt`,
                     `b`.`board_idx`,
                     `b`.`category_idx`,
                     `b`.`member_idx`,
@@ -2359,6 +2360,7 @@ class Ukp {
         } else if($table == "file") {
             $sql = "
                 select
+                    count(*) as `cnt`,
                     `f`.`file_idx`,
                     `f`.`board_idx`,
                     `f`.`origin_name`,
@@ -2370,14 +2372,38 @@ class Ukp {
                 from
                     `file` as `f`
                 where
-                    `file_idx` = ? and
+                    `f`.`file_idx` = ? and
                     `f`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
         } else if($table == "image") {
             
         } else if($table == "member") {
-            
+            $sql = "
+                select
+                    `m`.`member_idx`,
+                    `m`.`id`,
+                    `m`.`nickname`,
+                    `m`.`name`,
+                    `m`.`birthday`,
+                    `m`.`gender`,
+                    `m`.`last_login_date`,
+                    `m`.`last_login_time`,
+                    `m`.`insert_date`,
+                    `m`.`insert_time`,
+                    `i`.`server_path`,
+                    `i`.`web_path`
+                from
+                    `member` as `m`
+                left join
+                    `image` as `i`
+                on
+                    `m`.`image_idx` = `i`.`image_idx`
+                where
+                    `m`.`member_idx` = ? and
+                    `m`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
         }
         $binding = array_merge(array($idx), $where_info["binding"]);
         $result = $this->db_row_array($sql, $binding, $database);
@@ -2516,7 +2542,32 @@ class Ukp {
         } else if($table == "image") {
             
         } else if($table == "member") {
-            
+            $sql = "
+                select
+                    `m`.`member_idx`,
+                    `m`.`id`,
+                    `m`.`nickname`,
+                    `m`.`name`,
+                    `m`.`birthday`,
+                    `m`.`gender`,
+                    `m`.`last_login_date`,
+                    `m`.`last_login_time`,
+                    `m`.`insert_date`,
+                    `m`.`insert_time`,
+                    `i`.`server_path`,
+                    `i`.`web_path`
+                from
+                    `member` as `m`
+                left join
+                    `image` as `i`
+                on
+                    `m`.`image_idx` = `i`.`image_idx`
+                where
+                    `m`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `m`.`member_idx` desc
+            ";
         }
         $binding = $where_info["binding"];
         //order by 있는경우
@@ -2588,7 +2639,15 @@ class Ukp {
         } else if($table == "image") {
             
         } else if($table == "member") {
-            
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `member` as `m`
+                where
+                    `m`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
         }
         $binding = $where_info["binding"];
         $result = $this->db_row_array($sql, $binding, $database);

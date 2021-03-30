@@ -48,6 +48,24 @@
         <script src="<?= $data["remap_code"]["public_url"] ?>/js/ukp.js"></script>
         <!-- /js -->
         <style>
+            /* datepicker css */
+            .ui-datepicker select.ui-datepicker-year {
+                width: 40%;
+            }
+            .ui-datepicker select.ui-datepicker-month {
+                width: 35%;
+            }
+            /* bxslider */
+            .bx-wrapper {
+                border: 0;
+                box-shadow: none;
+            }
+            .bx-wrapper .bx-pager.bx-default-pager a.active {
+                background: #15aeff;
+            }
+            .bx-wrapper .bx-pager.bx-default-pager a {
+                background: #aae2ff;
+            }
             /* module start */
             .ukp__module_input {
                 width: 100%;
@@ -376,6 +394,22 @@
             </div>
         </div>
         <script>
+            $(document).ready(function () {
+                $(".ukp__js_wrap_datepicker").datepicker({
+                    dateFormat: "yy-mm-dd",
+                    changeYear: true,
+                    changeMonth: true,
+                    showMonthAfterYear: true,
+                    minDate: "-100Y",
+                    maxDate: "0",
+                    yearRange: "-100:+0",
+                    yearSuffix: "년&nbsp;&nbsp;",
+                    dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
+                    dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                    monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
+                });
+            });
             var ukp__js_wrap = {
                 menu_toggle: function () {
                     $(".ukp__js_wrap_menu").toggle();
