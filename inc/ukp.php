@@ -1579,8 +1579,8 @@ class Ukp {
     /**
      * 테이블 업데이트(1개)
      * 
-     * require  2020.11.16 db_query, db_affected_rows, solution_create_where
-     * @version 2020.11.16
+     * require  2021.03.30 db_query, db_affected_rows, solution_create_where
+     * @version 2021.03.30
      * 
      * @param  string $main_table     테이블명
      * @param  array  $main_row       수정할 row, key가 is 인경우 이스케이프 처리안함
@@ -1626,11 +1626,14 @@ class Ukp {
         if ($main_primary != "") {
             $update_add_where = " and (
                 select
-                    count(*)
-                from
-                    `{$main_table}`
-                where
-                    1 = 1
+                    `cnt`
+                from (
+                    select
+                        count(*) as `cnt`
+                    from
+                        `{$main_table}`
+                    where
+                        1 = 1
             ";
             $i = 0;
             foreach ($main_add_where as $k => $v) {
@@ -1649,7 +1652,7 @@ class Ukp {
             }
             $update_add_where .= ") and `{$main_primary}` <> ?";
             $update_binding[] = $update_primary;
-            $update_add_where .= ") = 0";
+            $update_add_where .= ") as `t1`) = 0";
         }
 
         $sql = "

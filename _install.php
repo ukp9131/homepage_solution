@@ -225,6 +225,8 @@ CREATE TABLE if not exists {$prefix}member
     `last_login_time`  time            NULL        COMMENT '마지막로그인시', 
     `insert_date`      date            NULL        COMMENT '입력일', 
     `insert_time`      time            NULL        COMMENT '입력시', 
+    `update_date`      date            NULL        COMMENT '수정일', 
+    `update_time`      time            NULL        COMMENT '수정시', 
     `delete_flag`      varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 
     index (`id`),
     index (`image_idx`),
