@@ -795,6 +795,46 @@ class Ukp {
     function common_html_decode($text) {
         return htmlspecialchars_decode($text, ENT_COMPAT);
     }
+    
+    /**
+     * 모바일 여부 (http://detectmobilebrowsers.com/)
+     * 
+     * require  2020.09.23 input_server
+     * @version 2020.05.18
+     *
+     * @return bool
+     */
+    function common_is_mobile() {
+        $useragent = $this->input_server("http_user_agent");
+        //|android|ipad|playbook|silk 추가됨(태블릿 대응)
+        if (preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i', $useragent) || preg_match('/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i', substr($useragent, 0, 4))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * 봇 여부
+     * 
+     * require  2021.01.11 input_server
+     * @version 2021.01.11
+     *
+     * @return bool
+     */
+    function common_is_bot() {
+        $useragent = $this->input_server("http_user_agent");
+        //bot문자열 있는경우 bot
+        if (stristr($useragent, "bot")) {
+            return true;
+        }
+        //운영체제 문자열 있는경우 봇 아님
+        if (stristr($useragent, "Mozilla/5.0 (Macintosh") || stristr($useragent, "Mozilla/5.0 (Windows") || stristr($useragent, "Mozilla/5.0 (Linux") || stristr($useragent, "Mozilla/5.0 (iPhone")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     /**
      * 쿼리 보내기
@@ -2295,6 +2335,8 @@ class Ukp {
             ";
         } else if($table == "admin_log") {
             
+        } else if($table == "author") {
+            
         } else if($table == "board") {
             $sql = "
                 select
@@ -2356,6 +2398,29 @@ class Ukp {
             ";
         } else if($table == "code") {
             
+        } else if($table == "comic") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `c4`.`comic_idx`,
+                    `c4`.`author_idx`,
+                    `c4`.`title`,
+                    `c4`.`page`,
+                    `c4`.`view_cnt`,
+                    `c4`.`insert_date`,
+                    `c4`.`insert_time`,
+                    `a2`.`name` as `author`
+                from
+                    `comic` as `c4`
+                left join
+                    `author` as `a2`
+                on
+                    `c4`.`author_idx` = `a2`.`author_idx`
+                where
+                    `c4`.`comic_idx` = ? and
+                    `c4`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
         } else if($table == "comment") {
             
         } else if($table == "connect_log") {
@@ -2434,6 +2499,8 @@ class Ukp {
             
         } else if($table == "admin_log") {
             
+        } else if($table == "author") {
+            
         } else if($table == "board") {
             $sql = "
                 select
@@ -2489,6 +2556,29 @@ class Ukp {
             ";
         } else if($table == "code") {
             
+        } else if($table == "comic") {
+            $sql = "
+                select
+                    `c4`.`comic_idx`,
+                    `c4`.`author_idx`,
+                    `c4`.`title`,
+                    `c4`.`page`,
+                    `c4`.`view_cnt`,
+                    `c4`.`insert_date`,
+                    `c4`.`insert_time`,
+                    `a2`.`name` as `author`
+                from
+                    `comic` as `c4`
+                left join
+                    `author` as `a2`
+                on
+                    `c4`.`author_idx` = `a2`.`author_idx`
+                where
+                    `c4`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `c4`.`comic_idx` desc
+            ";
         } else if($table == "comment") {
             $sql = "
                 select
@@ -2611,6 +2701,8 @@ class Ukp {
             
         } else if($table == "admin_log") {
             
+        } else if($table == "author") {
+            
         } else if($table == "board") {
             $sql = "
                 select
@@ -2625,6 +2717,16 @@ class Ukp {
             
         } else if($table == "code") {
             
+        } else if($table == "comic") {
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `comic` as `c4`
+                where
+                    `c4`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
         } else if($table == "comment") {
             $sql = "
                 select
@@ -2749,5 +2851,44 @@ class Ukp {
             $parent_arr[$k]["child"] = isset($child_arr[$v["comment_idx"]]) ? $child_arr[$v["comment_idx"]] : array();
         }
         return $parent_arr;
+    }
+    
+    /**
+     * 접속로그
+     */
+    function solution_connect_log() {
+        $ip = $this->input_server("remote_addr");
+        $start_page = $this->input_server("remote_addr");
+        $referer = $this->input_server("http_referer");
+        $user_agent = $this->input_server("http_user_agent");
+        $date = date("Y-m-d");
+        if($this->common_is_bot()) {
+            $device_flag = "b";
+        } else if($this->common_is_mobile()) {
+            $device_flag = "m";
+        } else {
+            $device_flag = "p";
+        }
+        $row_arr = array(
+            "ip" => $ip,
+            "start_page" => $start_page,
+            "referer" => $referer,
+            "user_agent" => $user_agent,
+            "device_flag" => $device_flag,
+            "connect_cnt" => "1"
+        );
+        $where_arr = array(
+            "ip" => $ip,
+            "insert_date" => $date
+        );
+        $connect_log_idx = $this->solution_insert("connect_log", $row_arr, $where_arr, false);
+        
+        if($connect_log_idx > 0) {
+            return;
+        }
+        $row_arr = array(
+            "connect_cnt is" => "`connect_cnt` + 1"
+        );
+        $this->solution_update("connect_log", $row_arr, $where_arr);
     }
 }

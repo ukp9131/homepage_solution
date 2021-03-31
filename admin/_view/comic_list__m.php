@@ -21,9 +21,6 @@
     .ukp__box_mobile > .ukp__content > .ukp__btn_list > .ukp__btn {
         display: inline-block;
     }
-    .ukp__box_mobile > .ukp__content > .ukp__module_layout_table_m > .ukp__parent {
-        background-color: #dee2e6;
-    }
     .ukp__box_mobile > .ukp__content > .ukp__module_layout_table_m > .ukp__row > .ukp__content > div > .ukp__href {
         font-weight: bold;
         text-decoration: underline;
@@ -37,60 +34,30 @@
 <div class="ukp__box_mobile">
     <div class="ukp__content">
         <div class="ukp__title">
-            <a href="#" class="ukp__href" onclick="history.back(); return false;">&lt; 게시판리스트</a>
+            <a href="#" class="ukp__href" onclick="history.back(); return false;">&lt; 만화리스트</a>
         </div>
         <div class="ukp__btn_list">
-            <button class="ukp__module_btn" type="button" onclick="location.href = 'write_board.php?category_idx=<?= $data["category"]["category_idx"] ?>'">작성</button>
+            <button class="ukp__module_btn" type="button" onclick="location.href = 'write_comic.php'">작성</button>
         </div>
         <div class="ukp__module_layout_table_m">
-            <?php foreach ($data["top_list"] as $temp) { ?>
-                <div class="ukp__row ukp__parent">
-                    <div class="ukp__num">
-                        <?= $temp["board_idx"] ?>
-                    </div>
-                    <div class="ukp__content">
-                        <div class="ukp__left">
-                            <a href="board_content.php?board_idx=<?= $temp["board_idx"] ?>" class="ukp__href">
-                                <?= $temp["title"] ?>
-                                <?php if ($temp["private_flag"] == "y") { ?>
-                                    <img src="image/lock.svg" alt="" class="ukp__image">
-                                <?php } ?>
-                            </a>
-                        </div>
-                        <div class="ukp__left">
-                            <?= $temp["name"] ?> |
-                            조회: <?= $temp["view_cnt"] ?> |
-                            <?= $temp["insert_date"] ?>
-                        </div>
-                        <div class="ukp__right">
-                            <a href="modify_board.php?board_idx=<?= $temp["board_idx"] ?>" class="ukp__href">수정</a> | 
-                            <a href="#" class="ukp__href" onclick="return ukp__js_mobile.delete_board('<?= $temp["board_idx"] ?>')">삭제</a>
-                        </div>
-                    </div>
-                </div>
-            <?php } ?>
             <?php foreach ($data["list"] as $temp) { ?>
                 <div class="ukp__row">
                     <div class="ukp__num">
-                        <?= $temp["board_idx"] ?>
+                        번호<br>
+                        <?= $temp["comic_idx"] ?>
                     </div>
                     <div class="ukp__content">
                         <div class="ukp__left">
-                            <a href="board_content.php?board_idx=<?= $temp["board_idx"] ?>" class="ukp__href">
-                                <?= $temp["title"] ?>
-                                <?php if ($temp["private_flag"] == "y") { ?>
-                                    <img src="image/lock.svg" alt="" class="ukp__image">
-                                <?php } ?>
-                            </a>
+                            [<?= $temp["author"] ?>] <?= $temp["title"] ?>
                         </div>
                         <div class="ukp__left">
-                            <?= $temp["name"] ?> |
+                            페이지: <?= $temp["page"] ?> |
                             조회: <?= $temp["view_cnt"] ?> |
                             <?= $temp["insert_date"] ?>
                         </div>
                         <div class="ukp__right">
-                            <a href="modify_board.php?board_idx=<?= $temp["board_idx"] ?>" class="ukp__href">수정</a> | 
-                            <a href="#" class="ukp__href" onclick="return ukp__js_mobile.delete_board('<?= $temp["board_idx"] ?>')">삭제</a>
+                            <a href="modify_comic.php?comic_idx=<?= $temp["comic_idx"] ?>" class="ukp__href">수정</a>
+                            <!-- | <a href="#" class="ukp__href" onclick="return ukp__js_mobile.delete_comic('<?= $temp["comic_idx"] ?>')">삭제</a>-->
                         </div>
                     </div>
                 </div>
@@ -111,12 +78,12 @@
 </div>
 <script>
     var ukp__js_mobile = {
-        delete_board: function (board_idx) {
+        delete_comic: function (comic_idx) {
             if (!confirm("정말로 삭제하시겠습니까?")) {
                 return false;
             }
-            ukp__js_common.ajax("_delete_board.php", {
-                board_idx: board_idx
+            ukp__js_common.ajax("_delete_comic.php", {
+                comic_idx: comic_idx
             }, function (data) {
                 if (data == "1") {
                     location.reload();

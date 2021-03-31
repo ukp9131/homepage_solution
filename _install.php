@@ -47,7 +47,7 @@ CREATE TABLE if not exists {$prefix}admin
 ";
 $ukp->db_query($sql);
 $sql = "
-CREATE TABLE {$prefix}author
+CREATE TABLE if not exists {$prefix}author
 (
     `author_idx`   int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
     `name`         varchar(191)    NULL        COMMENT '작가명', 
@@ -167,7 +167,7 @@ CREATE TABLE if not exists {$prefix}comment
 ";
 $ukp->db_query($sql);
 $sql = "
-CREATE TABLE {$prefix}comic
+CREATE TABLE if not exists {$prefix}comic
 (
     `comic_idx`    int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
     `author_idx`   int(11)         NULL        COMMENT '작가', 
@@ -187,7 +187,6 @@ $sql = "
 CREATE TABLE if not exists {$prefix}connect_log
 (
     `connect_log_idx`  int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
-    `member_idx`       int(11)         NULL        COMMENT '회원', 
     `ip`               varchar(191)    NULL        COMMENT '아이피', 
     `start_page`       text            NULL        COMMENT '시작페이지', 
     `referer`          text            NULL        COMMENT '이전페이지', 
@@ -199,7 +198,6 @@ CREATE TABLE if not exists {$prefix}connect_log
     `delete_flag`      varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 
     index (`insert_date`),
     index (`ip`),
-    index (`member_idx`),
     PRIMARY KEY (connect_log_idx)
 ) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collate} COMMENT='접속로그(cl)'
 ";
