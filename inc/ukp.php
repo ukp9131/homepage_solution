@@ -2397,7 +2397,21 @@ class Ukp {
                     {$where_info["where"]}
             ";
         } else if($table == "code") {
-            
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `c2`.`code_idx`,
+                    `c2`.`title`,
+                    `c2`.`content`,
+                    `c2`.`description`,
+                    `c2`.`core_flag`
+                from
+                    `code` as `c2`
+                where
+                    `c2`.`code_idx` = ? and
+                    `c2`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
         } else if($table == "comic") {
             $sql = "
                 select
@@ -2555,7 +2569,22 @@ class Ukp {
                     `c`.`category_idx`
             ";
         } else if($table == "code") {
-            
+            $sql = "
+                select
+                    `c2`.`code_idx`,
+                    `c2`.`title`,
+                    `c2`.`content`,
+                    `c2`.`description`,
+                    `c2`.`core_flag`
+                from
+                    `code` as `c2`
+                where
+                    `c2`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `c2`.`core_flag` desc,
+                    `c2`.`code_idx` desc
+            ";
         } else if($table == "comic") {
             $sql = "
                 select
@@ -2716,7 +2745,15 @@ class Ukp {
         } else if($table == "category") {
             
         } else if($table == "code") {
-            
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `code` as `c2`
+                where
+                    `c2`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
         } else if($table == "comic") {
             $sql = "
                 select
