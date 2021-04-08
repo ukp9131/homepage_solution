@@ -54,10 +54,7 @@
                             <?php } ?>
                         </div>
                         <div class="ukp__left">
-                            게시글: <?= $temp["board_flag"] ?> |
-                            댓글: <?= $temp["comment_flag"] ?> |
-                            에디터: <?= $temp["editor_flag"] ?> |
-                            파일첨부: <?= $temp["file_flag"] ?>
+                            <?= $temp["file_name"] ?>
                         </div>
                         <div class="ukp__right">
                             <a href="modify_category.php?category_idx=<?= $temp["category_idx"] ?>" class="ukp__href">수정</a> | 
@@ -81,10 +78,7 @@
                                 <?php } ?>
                             </div>
                             <div class="ukp__left">
-                                게시글: <?= $temp2["board_flag"] ?> |
-                                댓글: <?= $temp2["comment_flag"] ?> |
-                                에디터: <?= $temp2["editor_flag"] ?> |
-                                파일첨부: <?= $temp2["file_flag"] ?>
+                                <?= $temp2["file_name"] ?>
                             </div>
                             <div class="ukp__right">
                                 <a href="modify_category.php?category_idx=<?= $temp2["category_idx"] ?>" class="ukp__href">수정</a> | 

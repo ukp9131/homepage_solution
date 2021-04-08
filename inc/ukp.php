@@ -2384,11 +2384,7 @@ class Ukp {
                     `c`.`file_name`,
                     `c`.`manager_file_name`,
                     `c`.`title`,
-                    `c`.`sort`,
-                    `c`.`board_flag`,
-                    `c`.`comment_flag`,
-                    `c`.`editor_flag`,
-                    `c`.`file_flag`
+                    `c`.`sort`
                 from
                     `category` as `c`
                 where
@@ -2554,11 +2550,7 @@ class Ukp {
                     `c`.`file_name`,
                     `c`.`manager_file_name`,
                     `c`.`title`,
-                    `c`.`sort`,
-                    `c`.`board_flag`,
-                    `c`.`comment_flag`,
-                    `c`.`editor_flag`,
-                    `c`.`file_flag`
+                    `c`.`sort`
                 from
                     `category` as `c`
                 where

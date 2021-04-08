@@ -53,10 +53,6 @@
                     <th>순서</th>
                     <th>카테고리명</th>
                     <th>파일명</th>
-                    <th>게시글</th>
-                    <th>댓글</th>
-                    <th>에디터</th>
-                    <th>파일첨부</th>
                     <th>옵션</th>
                 </tr>
             </thead>
@@ -74,10 +70,6 @@
                             <?php } ?>
                         </td>
                         <td class="ukp__left"><?= $temp["file_name"] ?></td>
-                        <td class="ukp__center"><?= $temp["board_flag"] ?></td>
-                        <td class="ukp__center"><?= $temp["comment_flag"] ?></td>
-                        <td class="ukp__center"><?= $temp["editor_flag"] ?></td>
-                        <td class="ukp__center"><?= $temp["file_flag"] ?></td>
                         <td class="ukp__center">
                             <button class="ukp__module_btn ukp__module_style_small" type="button" onclick="location.href = 'modify_category.php?category_idx=<?= $temp["category_idx"] ?>'">수정</button>
                             <button class="ukp__module_btn ukp__module_style_small" type="button" onclick="ukp__js_content.delete_category('<?= $temp["category_idx"] ?>')">삭제</button>
@@ -96,10 +88,6 @@
                                 <?php } ?>
                             </td>
                             <td class="ukp__left"><?= $temp2["file_name"] ?></td>
-                            <td class="ukp__center"><?= $temp2["board_flag"] ?></td>
-                            <td class="ukp__center"><?= $temp2["comment_flag"] ?></td>
-                            <td class="ukp__center"><?= $temp2["editor_flag"] ?></td>
-                            <td class="ukp__center"><?= $temp2["file_flag"] ?></td>
                             <td class="ukp__center">
                                 <button class="ukp__module_btn ukp__module_style_small" type="button" onclick="location.href = 'modify_category.php?category_idx=<?= $temp2["category_idx"] ?>'">수정</button>
                                 <button class="ukp__module_btn ukp__module_style_small" type="button" onclick="ukp__js_content.delete_category('<?= $temp2["category_idx"] ?>')">삭제</button>

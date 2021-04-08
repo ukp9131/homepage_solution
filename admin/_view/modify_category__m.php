@@ -82,46 +82,6 @@
                 </div>
             </div>
         </div>
-        <div class="ukp__row">
-            <div class="ukp__module_select">
-                <div class="ukp__title">게시글</div>
-                <select class="ukp__select" name="board_flag">
-                    <option value="n"<?= $data["category"]["category_idx"] == "n" ? " selected" : "" ?>>관리자</option>
-                    <option value="m"<?= $data["category"]["category_idx"] == "m" ? " selected" : "" ?>>회원</option>
-                    <option value="y"<?= $data["category"]["category_idx"] == "y" ? " selected" : "" ?>>전체</option>
-                </select>
-            </div>
-        </div>
-        <div class="ukp__row">
-            <div class="ukp__module_select">
-                <div class="ukp__title">댓글</div>
-                <select class="ukp__select" name="comment_flag">
-                    <option value="n"<?= $data["category"]["category_idx"] == "n" ? " selected" : "" ?>>관리자</option>
-                    <option value="m"<?= $data["category"]["category_idx"] == "m" ? " selected" : "" ?>>회원</option>
-                    <option value="y"<?= $data["category"]["category_idx"] == "y" ? " selected" : "" ?>>전체</option>
-                </select>
-            </div>
-        </div>
-        <div class="ukp__row">
-            <div class="ukp__module_select">
-                <div class="ukp__title">에디터</div>
-                <select class="ukp__select" name="editor_flag">
-                    <option value="n"<?= $data["category"]["category_idx"] == "n" ? " selected" : "" ?>>관리자</option>
-                    <option value="m"<?= $data["category"]["category_idx"] == "m" ? " selected" : "" ?>>회원</option>
-                    <option value="y"<?= $data["category"]["category_idx"] == "y" ? " selected" : "" ?>>전체</option>
-                </select>
-            </div>
-        </div>
-        <div class="ukp__row">
-            <div class="ukp__module_select">
-                <div class="ukp__title">파일첨부</div>
-                <select class="ukp__select" name="file_flag">
-                    <option value="n"<?= $data["category"]["category_idx"] == "n" ? " selected" : "" ?>>관리자</option>
-                    <option value="m"<?= $data["category"]["category_idx"] == "m" ? " selected" : "" ?>>회원</option>
-                    <option value="y"<?= $data["category"]["category_idx"] == "y" ? " selected" : "" ?>>전체</option>
-                </select>
-            </div>
-        </div>
         <div class="ukp__btn_list">
             <button class="ukp__module_btn" type="button" onclick="history.back()">뒤로가기</button>
             <button class="ukp__module_btn" type="submit">확인</button>

@@ -17,21 +17,13 @@ $file_name = trim($ukp->input_request("file_name"));
 $manager_file_name = $ukp->input_request("manager_file_name");
 $title = $ukp->input_request("title");
 $sort = intval($ukp->input_request("sort"));
-$board_flag = $ukp->input_request("board_flag");
-$comment_flag = $ukp->input_request("comment_flag");
-$editor_flag = $ukp->input_request("editor_flag");
-$file_flag = $ukp->input_request("file_flag");
 
 $row_arr = array(
     "parent_category_idx is" => $parent_category_idx,
     "file_name" => $file_name,
     "manager_file_name" => $manager_file_name,
     "title" => $title,
-    "sort" => $sort,
-    "board_flag" => $board_flag,
-    "comment_flag" => $comment_flag,
-    "editor_flag" => $editor_flag,
-    "file_flag" => $file_flag
+    "sort" => $sort
 );
 $ukp->solution_insert("category", $row_arr);
 
