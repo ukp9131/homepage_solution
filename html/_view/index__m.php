@@ -1,3 +1,3 @@
-<div class="ukp__box_content">
+<div class="ukp__box_mobile">
     hello world!
 </div>
