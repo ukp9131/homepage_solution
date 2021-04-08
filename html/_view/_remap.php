@@ -189,7 +189,7 @@
                 min-height: 100vh;
             }
             .ukp__box_wrap > .ukp__mobile > .ukp__header {
-                padding: 0.625rem;
+                padding: 0.625rem 1.25rem;
                 font-size: 0;
                 background-color: white;
             }
@@ -229,8 +229,9 @@
             .ukp__box_wrap > .ukp__mobile > .ukp__header > .ukp__menu {
                 float: right;
                 height: 1.875rem;
-                margin-left: 0.375rem;
+                margin-left: 0.625rem;
                 display: block;
+                cursor: pointer;
             }
             .ukp__box_wrap > .ukp__mobile > .ukp__menu {
                 position: fixed;
@@ -276,6 +277,7 @@
             .ukp__box_wrap > .ukp__mobile > .ukp__menu > .ukp__list > .ukp__module_layout_float > .ukp__right > .ukp__image {
                 height: 1.25rem;
                 display: block;
+                cursor: pointer;
             }
             .ukp__box_wrap > .ukp__mobile > .ukp__menu > .ukp__list > .ukp__child {
                 background-color: #c2c7d0;
@@ -389,20 +391,21 @@
             <div class="ukp__mobile">
                 <?php if ($data["remap_header_bool"]) { ?>
                     <div class="ukp__header">
-                        <div class="ukp__logo" onclick="location.href='index.php';">
+                        <div class="ukp__logo" onclick="location.href = 'index.php';">
                             <img src="<?= "{$data["remap_code"]["public_url"]}/logo.png" ?>" alt="" class="ukp__image">
                             <div class="ukp__text"><?= $data["remap_code"]["homepage_name"] ?></div>
                         </div>
-                        <img src="image/bars.svg" alt="" class="ukp__menu">
+                        <img src="image/bars.svg" alt="" class="ukp__menu" onclick="ukp__js_wrap.mobile_menu_toggle()">
                         <div class="ukp__href_list">
                             <a href="login.php" class="ukp__href">로그인</a>
                         </div>
                     </div>
-                    <div class="ukp__menu ukp__js_wrap_menu">
+                    <div class="ukp__menu ukp__js_wrap_menu" style="display: none;">
                         <div class="ukp__background" onclick="ukp__js_wrap.mobile_menu_toggle()"></div>
                         <div class="ukp__list">
-                            <div class="ukp__title">
-                                메뉴
+                            <div class="ukp__module_layout_float ukp__title">
+                                <div class="ukp__left">메뉴</div>
+                                <div class="ukp__right"><img src="image/times.svg" alt="" class="ukp__image" onclick="ukp__js_wrap.mobile_menu_toggle()"></div>
                             </div>
                             <?php foreach ($data["remap_category"] as $temp) { ?>
                                 <a href="<?= "{$temp["file_name"]}?category_idx={$temp["category_idx"]}" ?>" class="ukp__module_layout_float"<?= count($temp["child"]) > 0 ? ' onclick="return false;"' : "" ?>>
