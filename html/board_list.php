@@ -24,6 +24,7 @@ $data["list"] = $ukp->solution_table_list("board", $where_arr, array("start" => 
 $data["pagination"] = $ukp->common_pagination($data["info"]["cnt"], $limit, "page", 5);
 
 //remap
+$ukp->solution_connect_log();
 $data["remap_code"] = $ukp->solution_get_code();
 $data["remap_dir"] = dirname(__FILE__);
 $data["remap_base"] = basename(__FILE__);

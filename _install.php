@@ -300,6 +300,7 @@ $code_arr = array(
     "tel" => "연락처",
     "owner" => "대표자",
     "email" => "이메일",
+    "business_no" => "사업자번호",
     "public_url" => "public 폴더 web경로"
 );
 foreach($code_arr as $k => $v) {

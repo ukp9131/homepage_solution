@@ -337,7 +337,7 @@
                         <div class="ukp__menu">
                             <?php foreach ($data["remap_category"] as $temp) { ?>
                                 <dlv class="ukp__row">
-                                    <a href="<?= "{$temp["file_name"]}?category_idx={$temp["category_idx"]}" ?>" class="ukp__title"<?= count($temp["child"]) > 0 ? ' onclick="return false;"' : "" ?>>
+                                    <a href="<?= "{$temp["file_name"]}?category_idx={$temp["category_idx"]}" ?>" class="ukp__title" onclick="return ukp__js_wrap.menu_check('<?= $temp["category_idx"] ?>', 'y', '<?= count($temp["child"]) ?>')">
                                         <?= $temp["title"] ?>
                                         <?php if (count($temp["child"]) > 0) { ?>
                                             <img src="image/angle-down.svg" alt="" class="ukp__image">
@@ -346,7 +346,7 @@
                                     <?php if (count($temp["child"]) > 0) { ?>
                                         <div class="ukp__list">
                                             <?php foreach ($temp["child"] as $temp2) { ?>
-                                                <a href="<?= "{$temp2["file_name"]}?category_idx={$temp2["category_idx"]}" ?>" class="ukp__row"><?= $temp2["title"] ?></a>
+                                                <a href="<?= "{$temp2["file_name"]}?category_idx={$temp2["category_idx"]}" ?>" class="ukp__row" onclick="return ukp__js_wrap.menu_check('<?= $temp2["category_idx"] ?>', 'n', '0')"><?= $temp2["title"] ?></a>
                                             <?php } ?>
                                         </div>
                                     <?php } ?>
@@ -408,7 +408,7 @@
                                 <div class="ukp__right"><img src="image/times.svg" alt="" class="ukp__image" onclick="ukp__js_wrap.mobile_menu_toggle()"></div>
                             </div>
                             <?php foreach ($data["remap_category"] as $temp) { ?>
-                                <a href="<?= "{$temp["file_name"]}?category_idx={$temp["category_idx"]}" ?>" class="ukp__module_layout_float"<?= count($temp["child"]) > 0 ? ' onclick="return false;"' : "" ?>>
+                                <a href="<?= "{$temp["file_name"]}?category_idx={$temp["category_idx"]}" ?>" class="ukp__module_layout_float" onclick="return ukp__js_wrap.menu_check('<?= $temp["category_idx"] ?>', 'y', '<?= count($temp["child"]) ?>')">
                                     <div class="ukp__left"><?= $temp["title"] ?></div>
                                     <?php if (count($temp["child"]) > 0) { ?>
                                         <div class="ukp__right">
@@ -417,7 +417,7 @@
                                     <?php } ?>
                                 </a>
                                 <?php foreach ($temp["child"] as $temp2) { ?>
-                                    <a href="<?= "{$temp2["file_name"]}?category_idx={$temp2["category_idx"]}" ?>" class="ukp__module_layout_float ukp__child">
+                                    <a href="<?= "{$temp2["file_name"]}?category_idx={$temp2["category_idx"]}" ?>" class="ukp__module_layout_float ukp__child" onclick="return ukp__js_wrap.menu_check('<?= $temp2["category_idx"] ?>', 'n', '0')">
                                         <div class="ukp__left"><?= $temp2["title"] ?></div>
                                     </a>
                                 <?php } ?>
@@ -488,6 +488,11 @@
             var ukp__js_wrap = {
                 mobile_menu_toggle: function () {
                     $(".ukp__js_wrap_menu").toggle();
+                },
+                menu_check: function(category_idx, parent_flag, child_cnt) {
+                    if(child_cnt > 0) {
+                        return false;
+                    }
                 }
             };
         </script>

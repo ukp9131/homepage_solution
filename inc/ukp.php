@@ -2887,7 +2887,7 @@ class Ukp {
      */
     function solution_connect_log() {
         $ip = $this->input_server("remote_addr");
-        $start_page = $this->input_server("remote_addr");
+        $start_page = $this->input_server("request_uri");
         $referer = $this->input_server("http_referer");
         $user_agent = $this->input_server("http_user_agent");
         $date = date("Y-m-d");
