@@ -107,6 +107,7 @@
                 overflow: hidden;
                 height: 2.5rem;
                 vertical-align: top;
+                z-index: 999;
             }
             .ukp__box_wrap > .ukp__pc > .ukp__header > .ukp__menu > .ukp__row:hover {
                 height: auto;
