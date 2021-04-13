@@ -835,6 +835,31 @@ class Ukp {
             return true;
         }
     }
+    
+    /**
+     * 해당월의 일요일시작부터 토요일끝까지 날짜범위 반환<br>
+     * ex)2019-05 = 2019-04-28 ~ 2019-06-08 - fix<br>
+     * ex)2019-05 = 2019-04-28 ~ 2019-06-01 - unfix
+     * 
+     * require  2020.09.23
+     * @version 2020.02.13
+     *
+     * @param  string $date     (YYYY-mm)
+     * @param  bool   $fix_flag 6줄 고정여부
+     * @return array            ["start_date"] - 시작일(YYYY-mm-dd), <br>
+     *                          ["end_date"] - 종료일(YYYY-mm-dd)
+     */
+    function common_date_range($date, $fix_flag = true) {
+        $start_date = date("Y-m-d", strtotime("{$date}-01"));
+        $end_date = date("Y-m-t", strtotime("{$date}-01"));
+        $start_week = date("w", strtotime($start_date));
+        $end_week = $fix_flag ? (42 - $start_week - date("j", strtotime($end_date))) : (6 - date("w", strtotime($end_date)));
+        $temp = array(
+            "start_date" => date("Y-m-d", strtotime("{$start_date} -{$start_week} days")),
+            "end_date" => date("Y-m-d", strtotime("{$end_date} +{$end_week} days"))
+        );
+        return $temp;
+    }
 
     /**
      * 쿼리 보내기
@@ -2459,6 +2484,7 @@ class Ukp {
         } else if($table == "member") {
             $sql = "
                 select
+                    count(*) as `cnt`,
                     `m`.`member_idx`,
                     `m`.`id`,
                     `m`.`nickname`,
