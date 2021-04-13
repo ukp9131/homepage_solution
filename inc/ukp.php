@@ -6,7 +6,7 @@
  * 접두어가 solution인경우 개발환경에 맞게 사용<br>
  * 
  * @author  ukp
- * @version 2021.03.25
+ * @version 2021.04.13
  * @since   PHP 5 >= 5.2.0, PHP 7, PHP 8
  */
 class Ukp {
@@ -860,6 +860,19 @@ class Ukp {
         );
         return $temp;
     }
+    
+    /**
+     * 301 redirect
+     * 
+     * require  2021.04.13
+     * @version 2021.04.13
+     * 
+     * @param string $url 이동할 url
+     */
+    function common_301_redirect($url) {
+        header("HTTP/1.1 301 Moved Permanently");
+        header("Location: {$url}");
+    }
 
     /**
      * 쿼리 보내기
@@ -1574,7 +1587,7 @@ class Ukp {
      * @param  string $main_table  테이블명
      * @param  array  $main_row    입력할 row, key가 is 인경우 이스케이프 처리안함
      * @param  array  $main_where  중복 조건문(key에 다른기호 사용 가능)
-     * @param  array  $add_or_flag true - 중복체크 or문, false - 중복체크 and문
+     * @param  bool   $add_or_flag true - 중복체크 or문, false - 중복체크 and문
      * @param  string $database    사용할 db명
      * @return int                 insert_id(입력 안된경우 0)
      */
@@ -1653,7 +1666,7 @@ class Ukp {
      * @param  bool   $update_dt_bool 수정일시 사용여부(update_date, update_time 필수)
      * @param  string $main_primary   기본키 컬럼명(공백 아닌경우 중복체크)
      * @param  array  $main_add_where 중복체크 조건문(key에 다른기호 사용 가능)
-     * @param  array  $add_or_flag    true - 중복체크 or문, false - 중복체크 and문
+     * @param  bool   $add_or_flag    true - 중복체크 or문, false - 중복체크 and문
      * @param  string $database       사용할 db명
      * @return int                    affected_rows(수정 안된경우 0)
      */
@@ -1891,10 +1904,10 @@ class Ukp {
      * require  2021.03.25
      * @version 2021.03.25
      * 
-     * @param  string $where_arr where 배열(키값에 연산자 사용 가능)
-     * @return array             where 정보<br>
-     *                           ["where"] - 추가 where문<br>
-     *                           ["binding"] - 추가 binding문
+     * @param  array $where_arr where 배열(키값에 연산자 사용 가능)
+     * @return array            where 정보<br>
+     *                          ["where"] - 추가 where문<br>
+     *                          ["binding"] - 추가 binding문
      */
     function solution_create_where($where_arr = array()) {
         $return_arr = array(
@@ -2523,9 +2536,9 @@ class Ukp {
      * @version 2021.03.25
      * 
      * @param  string $table        테이블명
-     * @param  string $where_arr    where문
-     * @param  string $limit_arr    ["start"] - 시작, ["limit"] - 갯수
-     * @param  string $order_by_arr 정렬 배열(기본정렬인경우 빈배열)
+     * @param  array  $where_arr    where문
+     * @param  array  $limit_arr    ["start"] - 시작, ["limit"] - 갯수
+     * @param  array  $order_by_arr 정렬 배열(기본정렬인경우 빈배열)
      * @param  string $database     사용 데이터베이스
      * @return array                테이블 리스트
      */
@@ -2738,7 +2751,7 @@ class Ukp {
      * @version 2021.03.25
      * 
      * @param  string $table     테이블명
-     * @param  string $where_arr where문
+     * @param  array  $where_arr where문
      * @param  string $database  사용 데이터베이스
      * @return array             테이블 cnt쿼리 결과
      */
