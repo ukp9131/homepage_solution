@@ -165,14 +165,16 @@ $ukp->db_query($sql);
 $sql = "
 CREATE TABLE if not exists {$prefix}comic
 (
-    `comic_idx`    int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
-    `author_idx`   int(11)         NULL        COMMENT '작가', 
-    `title`        varchar(191)    NULL        COMMENT '제목', 
-    `page`         int(11)         NULL        DEFAULT 0 COMMENT '페이지', 
-    `view_cnt`     int(11)         NULL        DEFAULT 0 COMMENT '조회수', 
-    `insert_date`  date            NULL        COMMENT '입력일', 
-    `insert_time`  time            NULL        COMMENT '입력시', 
-    `delete_flag`  varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 
+    `comic_idx`     int(11)         NOT NULL    AUTO_INCREMENT COMMENT 'pk', 
+    `category_idx`  int(11)         NULL        COMMENT '카테고리', 
+    `author_idx`    int(11)         NULL        COMMENT '작가', 
+    `title`         varchar(191)    NULL        COMMENT '제목', 
+    `page`          int(11)         NULL        DEFAULT 0 COMMENT '페이지', 
+    `view_cnt`      int(11)         NULL        DEFAULT 0 COMMENT '조회수', 
+    `insert_date`   date            NULL        COMMENT '입력일', 
+    `insert_time`   time            NULL        COMMENT '입력시', 
+    `delete_flag`   varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 
+    index (`category_idx`),
     index (`author_idx`),
     index (`title`),
     PRIMARY KEY (comic_idx)

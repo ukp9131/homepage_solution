@@ -60,7 +60,7 @@
     <form class="ukp__form ukp__js_content_form" method="post" action="_update_comic.php">
         <input type="hidden" name="comic_idx" value="<?= $data["comic"]["comic_idx"] ?>">
         <div class="ukp__title">
-            만화 작성
+            만화 수정
         </div>
         <div class="ukp__row ukp__author">
             <div class="ukp__module_input">

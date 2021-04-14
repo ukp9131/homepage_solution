@@ -1,6 +1,6 @@
 <?php
 
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -11,12 +11,36 @@ require_once "{$dir}/../inc/ukp.php";
 $ukp = new Ukp();
 
 $category_idx = intval($ukp->input_request("category_idx"));
+$type = $ukp->input_request("type");
+$search = $ukp->common_html_encode(trim($ukp->input_request("search")));
 $page = intval($ukp->input_request("page"));
 $limit = 10;
 
-$where_arr = array();
+$data["search"] = $search;
+$data["type"] = $type;
+$data["php_self"] = $ukp->common_php_self();
+$data["category"] = $ukp->solution_table_info("category", $category_idx);
+$where_arr = array(
+    "c4.category_idx" => $category_idx
+);
+$order_arr = array();
+if ($search == "") {
+    
+} else if ($type == "title") {
+    $order_arr = array(
+        "a2.name",
+        "c4.title"
+    );
+    $where_arr["c4.title like"] = "%{$search}%";
+} else if ($type == "author") {
+    $order_arr = array(
+        "a2.name",
+        "c4.title"
+    );
+    $where_arr["a2.name like"] = "%{$search}%";
+}
 $data["info"] = $ukp->solution_table_cnt("comic", $where_arr);
-$data["list"] = $ukp->solution_table_list("comic", $where_arr, array("start" => $page, "limit" => $limit));
+$data["list"] = $ukp->solution_table_list("comic", $where_arr, array("start" => $page, "limit" => $limit), $order_arr);
 $data["pagination"] = $ukp->common_pagination($data["info"]["cnt"], $limit, "page", 5);
 
 //remap
@@ -25,7 +49,7 @@ $data["remap_code"] = $ukp->solution_get_code();
 $data["remap_dir"] = dirname(__FILE__);
 $data["remap_base"] = basename(__FILE__);
 $data["remap_header_bool"] = true;
-if($data["remap_header_bool"]) {
+if ($data["remap_header_bool"]) {
     $data["remap_category"] = $ukp->solution_category_list();
 }
 $data["remap_footer_bool"] = true;

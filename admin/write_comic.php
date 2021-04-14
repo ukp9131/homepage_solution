@@ -12,6 +12,10 @@ $ukp = new Ukp();
 
 $ukp->solution_session_check("1", true);
 
+$category_idx = intval($ukp->input_request("category_idx"));
+
+$data["category"] = $ukp->solution_table_info("category", $category_idx);
+
 //remap
 $data["remap_code"] = $ukp->solution_get_code();
 $data["remap_dir"] = dirname(__FILE__);
@@ -20,7 +24,7 @@ $data["remap_header_bool"] = true;
 if($data["remap_header_bool"]) {
     $data["remap_admin_info"] = $ukp->solution_table_info("admin", $ukp->session_get("admin_idx"));
 }
-$data["remap_header_text"] = "만화관리 &gt; 만화작성";
+$data["remap_header_text"] = "만화관리({$data["category"]["title"]}) &gt; 작성";
 $data["remap_footer_bool"] = true;
 
 $data["remap_url"] = ($ukp->common_is_https() ? "https://" : "http://") . "{$ukp->input_server("http_host")}/{$ukp->input_server("request_uri")}";

@@ -10,29 +10,28 @@ $dir = dirname(__FILE__);
 require_once "{$dir}/../inc/ukp.php";
 $ukp = new Ukp();
 
-$ukp->solution_session_check("1", true);
+$board_idx = intval($ukp->input_request("board_idx"));
 
-$comic_idx = intval($ukp->input_request("comic_idx"));
-$data["comic"] = $ukp->solution_table_info("comic", $comic_idx);
+$data["board"] = $ukp->solution_table_info("board", $comic_idx);
 
 //remap
+$ukp->solution_connect_log();
 $data["remap_code"] = $ukp->solution_get_code();
 $data["remap_dir"] = dirname(__FILE__);
 $data["remap_base"] = basename(__FILE__);
 $data["remap_header_bool"] = true;
 if($data["remap_header_bool"]) {
-    $data["remap_admin_info"] = $ukp->solution_table_info("admin", $ukp->session_get("admin_idx"));
+    $data["remap_category"] = $ukp->solution_category_list();
 }
-$data["remap_header_text"] = "만화관리({$data["board"]["category_title"]}) &gt; 수정";
 $data["remap_footer_bool"] = true;
 
 $data["remap_url"] = ($ukp->common_is_https() ? "https://" : "http://") . "{$ukp->input_server("http_host")}/{$ukp->input_server("request_uri")}";
 //article(게시글정보) 또는 website(홈페이지정보)
-$data["remap_type"] = "website";
+$data["remap_type"] = "article";
 //게시글제목
-$data["remap_title"] = "";
+$data["remap_title"] = $data["board"]["title"];
 //게시글내용
-$data["remap_content"] = "";
+$data["remap_content"] = mb_substr($data["board"], 0, 30, "utf-8");
 //게시글썸네일
 $data["remap_article_image"] = "";
 //게시글태그

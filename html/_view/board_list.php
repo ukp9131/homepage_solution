@@ -1,7 +1,17 @@
 <style>
     .ukp__box_content {
         position: relative;
-        padding: 1.25rem;
+    }
+    .ukp__box_content > .ukp__title {
+        background-color: black;
+        color: white;
+        margin-bottom: 3.125rem;
+    }
+    .ukp__box_content > .ukp__title > .ukp__row {
+        width: 62.5rem;
+        margin: 0 auto;
+        padding: 0.625rem 0;
+        font-size: 0.75rem;
     }
     .ukp__box_content > .ukp__content {
         border: 1px solid #dee2e6;
@@ -9,11 +19,6 @@
         padding: 1.25rem;
         width: 62.5rem;
         margin: 0 auto;
-    }
-    .ukp__box_content > .ukp__content > .ukp__title {
-        padding-bottom: 3.125rem;
-        font-size: 0.875rem;
-        font-weight: bold;
     }
     .ukp__box_content > .ukp__content > .ukp__btn_list {
         font-size: 0;
@@ -37,10 +42,12 @@
     }
 </style>
 <div class="ukp__box_content">
-    <div class="ukp__content">
-        <div class="ukp__title">
-            <a href="#" class="ukp__href" onclick="history.back(); return false;"><?= $data["category"]["title"] ?></a>
+    <div class="ukp__title">
+        <div class="ukp__row">
+            홈 &gt; <?= $data["category"]["title"] ?>
         </div>
+    </div>
+    <div class="ukp__content">
         <div class="ukp__btn_list">
             <button class="ukp__module_btn" type="button" onclick="location.href = 'write_board.php?category_idx=<?= $data["category"]["category_idx"] ?>'">작성</button>
         </div>

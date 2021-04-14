@@ -58,6 +58,7 @@
 </style>
 <div class="ukp__box_content">
     <form class="ukp__form ukp__js_content_form" method="post" action="_insert_comic.php">
+        <input type="hidden" name="category_idx" value="<?= $data["category"]["category_idx"] ?>">
         <div class="ukp__title">
             만화 작성
         </div>

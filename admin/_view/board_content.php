@@ -128,7 +128,7 @@
             <?= $data["board"]["title"] ?>
         </div>
         <div class="ukp__info">
-            <div class="ukp__row"><?= $data["board"]["title"] ?></div>
+            <div class="ukp__row"><?= $data["board"]["name"] ?></div>
             <div class="ukp__row">조회: <?= $data["board"]["view_cnt"] ?></div>
             <div class="ukp__row"><?= $data["board"]["insert_date"] ?> <?= $data["board"]["update_date"] == "" ? "" : " (수정일: {$data["board"]["update_date"]})" ?></div>
         </div>

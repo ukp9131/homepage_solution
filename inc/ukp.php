@@ -873,6 +873,19 @@ class Ukp {
         header("HTTP/1.1 301 Moved Permanently");
         header("Location: {$url}");
     }
+    
+    /**
+     * 쿼리스트링을 제외한 현재 경로
+     * 
+     * require  2020.09.23 input_server
+     * @version 2020.02.13
+     *
+     * @return string
+     */
+    function common_php_self() {
+        $src = explode("?", $this->input_server("request_uri"));
+        return $src[0];
+    }
 
     /**
      * 쿼리 보내기
@@ -2457,13 +2470,18 @@ class Ukp {
                     `c4`.`view_cnt`,
                     `c4`.`insert_date`,
                     `c4`.`insert_time`,
-                    `a2`.`name` as `author`
+                    `a2`.`name` as `author`,
+                    `c`.`title` as `category_title`
                 from
                     `comic` as `c4`
                 left join
                     `author` as `a2`
                 on
                     `c4`.`author_idx` = `a2`.`author_idx`
+                left join
+                    `category` as `c`
+                on
+                    `c4`.`category_idx` = `c`.`category_idx`
                 where
                     `c4`.`comic_idx` = ? and
                     `c4`.`delete_flag` = 'n'
@@ -2633,6 +2651,10 @@ class Ukp {
                     `author` as `a2`
                 on
                     `c4`.`author_idx` = `a2`.`author_idx`
+                left join
+                    `category` as `c`
+                on
+                    `c4`.`category_idx` = `c`.`category_idx`
                 where
                     `c4`.`delete_flag` = 'n'
                     {$where_info["where"]}
@@ -2791,6 +2813,14 @@ class Ukp {
                     count(*) as `cnt`
                 from
                     `comic` as `c4`
+                left join
+                    `author` as `a2`
+                on
+                    `c4`.`author_idx` = `a2`.`author_idx`
+                left join
+                    `category` as `c`
+                on
+                    `c4`.`category_idx` = `c`.`category_idx`
                 where
                     `c4`.`delete_flag` = 'n'
                     {$where_info["where"]}

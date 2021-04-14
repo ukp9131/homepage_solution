@@ -12,6 +12,7 @@ $ukp = new Ukp();
 
 $ukp->solution_session_check("1", false);
 
+$category_idx = intval($ukp->input_request("category_idx"));
 $author = trim(strtolower($ukp->input_request("author")));
 $title = trim($ukp->input_request("title"));
 $page = $ukp->input_request("page");
@@ -40,6 +41,7 @@ if ($author_idx == 0) {
 }
 
 $row_arr = array(
+    "category_idx" => $category_idx,
     "author_idx" => $author_idx,
     "title" => $title,
     "page" => $page

@@ -1,17 +1,53 @@
 <style>
     .ukp__box_mobile {
         position: relative;
-        padding: 1.25rem;
+    }
+    .ukp__box_mobile > .ukp__title {
+        background-color: black;
+        color: white;
+        margin-bottom: 1.875rem;
+    }
+    .ukp__box_mobile > .ukp__title > .ukp__row {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.75rem;
     }
     .ukp__box_mobile > .ukp__content {
+        width: calc(100% - 2.5rem);
+        margin: 0 auto;
         border: 1px solid #dee2e6;
         background-color: white;
         padding: 1.25rem;
+        padding-top: 2.5rem;
+        margin-bottom: 1.875rem;
     }
-    .ukp__box_mobile > .ukp__content > .ukp__title {
-        padding-bottom: 3.125rem;
+    .ukp__box_mobile > .ukp__content > .ukp__search {
+        text-align: right;
+        font-size: 0;
+        padding-bottom: 0.25rem;
+    }
+    .ukp__box_mobile > .ukp__content > .ukp__search > .ukp__module_select {
+        width: auto;
+        vertical-align: middle;
+    }
+    .ukp__box_mobile > .ukp__content > .ukp__search > .ukp__module_select > .ukp__select {
+        width: auto;
         font-size: 0.875rem;
-        font-weight: bold;
+    }
+    .ukp__box_mobile > .ukp__content > .ukp__search > .ukp__module_input {
+        vertical-align: middle;
+    }
+    .ukp__box_mobile > .ukp__content > .ukp__search > .ukp__module_input > .ukp__content > .ukp__input {
+        font-size: 0.875rem;
+    }
+    .ukp__box_mobile > .ukp__content > .ukp__search > .ukp__module_input > .ukp__content > .ukp__after > .ukp__btn {
+        display: block;
+        border: 0;
+        background-color: transparent;
+        padding: 0.25rem;
+        cursor: pointer;
+    }
+    .ukp__box_mobile > .ukp__content > .ukp__search > .ukp__module_input > .ukp__content > .ukp__after > .ukp__btn > .ukp__image {
+        width: 1.25rem;
     }
     .ukp__box_mobile > .ukp__content > .ukp__module_layout_table_m > .ukp__parent {
         background-color: #dee2e6;
@@ -27,27 +63,45 @@
     }
 </style>
 <div class="ukp__box_mobile">
-    <div class="ukp__content">
-        <div class="ukp__title">
-            만화리스트
+    <div class="ukp__title">
+        <div class="ukp__row">
+            홈 &gt; <?= $data["category"]["title"] ?>
         </div>
+    </div>
+    <div class="ukp__content">
+        <form method="get" action="<?= $data["php_self"] ?>" class="ukp__search">
+            <input type="hidden" name="category_idx" value="<?= $data["category"]["category_idx"] ?>">
+            <div class="ukp__module_select">
+                <select class="ukp__select" name="type">
+                    <option value="title"<?= $data["type"] == "title" ? " selected" : "" ?>>제목</option>
+                    <option value="author"<?= $data["type"] == "author" ? " selected" : "" ?>>작가</option>
+                </select>
+            </div>
+            <div class="ukp__module_input">
+                <div class="ukp__content">
+                    <div class="ukp__before"></div>
+                    <input class="ukp__input" type="text" name="search" value="<?= $data["search"] ?>">
+                    <div class="ukp__after">
+                        <button type="submit" class="ukp__btn">
+                            <img src="image/search.svg" alt="" class="ukp__image">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
         <div class="ukp__module_layout_table_m">
             <?php foreach ($data["list"] as $temp) { ?>
                 <div class="ukp__row">
                     <div class="ukp__num">
-                        <?= $temp["board_idx"] ?>
+                        <?= $temp["comic_idx"] ?>
                     </div>
                     <div class="ukp__content">
                         <div class="ukp__left">
-                            <a href="board_content.php?board_idx=<?= $temp["board_idx"] ?>" class="ukp__href">
-                                <?= $temp["title"] ?>
-                                <?php if ($temp["private_flag"] == "y") { ?>
-                                    <img src="image/lock.svg" alt="" class="ukp__image">
-                                <?php } ?>
+                            <a href="comic_content.php?comic_idx=<?= $temp["comic_idx"] ?>" class="ukp__href">
+                                [<?= $temp["author"] ?>] <?= $temp["title"] ?>
                             </a>
                         </div>
                         <div class="ukp__left">
-                            <?= $temp["name"] ?> |
                             조회: <?= $temp["view_cnt"] ?> |
                             <?= $temp["insert_date"] ?>
                         </div>
@@ -69,21 +123,5 @@
     </div>
 </div>
 <script>
-    var ukp__js_mobile = {
-        delete_board: function (board_idx) {
-            if (!confirm("정말로 삭제하시겠습니까?")) {
-                return false;
-            }
-            ukp__js_common.ajax("_delete_board.php", {
-                board_idx: board_idx
-            }, function (data) {
-                if (data == "1") {
-                    location.reload();
-                } else if (data == "999") {
-                    location.reload();
-                }
-            });
-            return false;
-        }
-    };
+    
 </script>

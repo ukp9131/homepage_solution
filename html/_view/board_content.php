@@ -1,95 +1,95 @@
 <style>
-    .ukp__box_mobile {
+    .ukp__box_content {
         position: relative;
         padding: 1.25rem;
     }
-    .ukp__box_mobile > .ukp__board {
+    .ukp__box_content > .ukp__board {
         border: 1px solid #dee2e6;
         background-color: white;
         padding: 1.25rem;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__title {
+    .ukp__box_content > .ukp__board > .ukp__title {
         font-size: 1rem;
         border-top: 0.125rem solid black;
         border-bottom: 0.125rem solid black;
         padding: 0.625rem 0;
         font-weight: bold;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__info {
+    .ukp__box_content > .ukp__board > .ukp__info {
         border-bottom: 0.0625rem solid black;
         padding: 0.625rem 0;
         font-size: 0;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__info > .ukp__row {
+    .ukp__box_content > .ukp__board > .ukp__info > .ukp__row {
         font-size: 0.875rem;
         display: inline-block;
         padding-right: 0.625rem;
         vertical-align: middle;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__content {
+    .ukp__box_content > .ukp__board > .ukp__content {
         padding: 0.625rem 0;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__btn_list {
+    .ukp__box_content > .ukp__board > .ukp__btn_list {
         text-align: right;
         font-size: 0;
         padding: 0.625rem 0;
         border-top: 0.0625rem solid black;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__btn_list > .ukp__module_btn {
+    .ukp__box_content > .ukp__board > .ukp__btn_list > .ukp__module_btn {
         display: inline-block;
         margin-left: 0.625rem;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment {
+    .ukp__box_content > .ukp__board > .ukp__comment {
         padding-top: 1.25rem;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_title {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_title {
         border-bottom: 0.125rem solid black;
         font-size: 0.875rem;
         padding: 0.625rem 0;
         font-weight: bold;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list {
         
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row {
         border-bottom: 0.0625rem solid #dee2e6;
         padding: 0.625rem 0;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__child {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__child {
         padding-left: 1.25rem;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title {
         font-size: 0;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__name {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__name {
         display: inline-block;
         font-size: 0.875rem;
         font-weight: bold;
         padding-right: 0.625rem;
         vertical-align: middle;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__date {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__date {
         display: inline-block;
         font-size: 0.875rem;
         padding-right: 0.625rem;
         vertical-align: middle;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__href {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__title > .ukp__href {
         display: inline-block;
         font-size: 0.75rem;
         font-weight: bold;
         vertical-align: middle;
         text-decoration: underline;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__content {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__content {
         padding: 0.625rem 0;
         font-size: 0.875rem;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__option {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__option {
         font-size: 0;
         text-align: right;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__option > .ukp__href {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row > .ukp__option > .ukp__href {
         font-size: 0.75rem;
         font-weight: bold;
         text-decoration: underline;
@@ -97,38 +97,38 @@
         margin-left: 0.625rem;
         vertical-align: middle;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__form {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__form {
         padding-top: 0.625rem;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__form > .ukp__module_textarea > .ukp__textarea {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__form > .ukp__module_textarea > .ukp__textarea {
         height: 3.125rem;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__form > .ukp__btn_list {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__form > .ukp__btn_list {
         padding: 0.625rem 0;
         text-align: right;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__form > .ukp__btn_list > .ukp__module_btn {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__form > .ukp__btn_list > .ukp__module_btn {
         display: inline-block;
         margin-left: 0.625rem;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__btn_list {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__btn_list {
         text-align: right;
         font-size: 0;
         padding: 0.625rem 0;
         border-top: 0.0625rem solid black;
     }
-    .ukp__box_mobile > .ukp__board > .ukp__comment > .ukp__btn_list > .ukp__module_btn {
+    .ukp__box_content > .ukp__board > .ukp__comment > .ukp__btn_list > .ukp__module_btn {
         display: inline-block;
         margin-left: 0.625rem;
     }
 </style>
-<div class="ukp__box_mobile">
+<div class="ukp__box_content">
     <div class="ukp__board">
         <div class="ukp__title">
             <?= $data["board"]["title"] ?>
         </div>
         <div class="ukp__info">
-            <div class="ukp__row"><?= $data["board"]["name"] ?></div>
+            <div class="ukp__row"><?= $data["board"]["title"] ?></div>
             <div class="ukp__row">조회: <?= $data["board"]["view_cnt"] ?></div>
             <div class="ukp__row"><?= $data["board"]["insert_date"] ?> <?= $data["board"]["update_date"] == "" ? "" : " (수정일: {$data["board"]["update_date"]})" ?></div>
         </div>
@@ -148,14 +148,14 @@
                         <div class="ukp__title">
                             <div class="ukp__name"><?= $temp["name"] ?></div>
                             <div class="ukp__date"><?= $temp["insert_date"] ?><?= $temp["update_date"] == "" ? "" : " (수정됨)" ?></div>
-                            <a href="#" class="ukp__href" onclick="return ukp__js_mobile.comment_answer('<?= $temp["comment_idx"] ?>', '<?= $temp["name"] ?>')">답글</a>
+                            <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_answer('<?= $temp["comment_idx"] ?>', '<?= $temp["name"] ?>')">답글</a>
                         </div>
                         <div class="ukp__content">
                             <?= nl2br($temp["content"]) ?>
                         </div>
                         <div class="ukp__option">
-                            <a href="#" class="ukp__href" onclick="return ukp__js_mobile.comment_modify('<?= $temp["comment_idx"] ?>', '<?= urlencode($temp["content"]) ?>', '<?= $temp["private_flag"] ?>')">수정</a>
-                            <a href="#" class="ukp__href" onclick="return ukp__js_mobile.comment_delete('<?= $temp["comment_idx"] ?>')">삭제</a>
+                            <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp["comment_idx"] ?>', '<?= urlencode($temp["content"]) ?>', '<?= $temp["private_flag"] ?>')">수정</a>
+                            <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp["comment_idx"] ?>')">삭제</a>
                         </div>
                     </div>
                     <?php foreach ($temp["child"] as $temp2) { ?>
@@ -168,31 +168,31 @@
                                 <?= nl2br($temp2["content"]) ?>
                             </div>
                             <div class="ukp__option">
-                                <a href="#" class="ukp__href" onclick="return ukp__js_mobile.comment_modify('<?= $temp2["comment_idx"] ?>', '<?= urlencode($temp2["content"]) ?>', '<?= $temp2["private_flag"] ?>')">수정</a>
-                                <a href="#" class="ukp__href" onclick="return ukp__js_mobile.comment_delete('<?= $temp2["comment_idx"] ?>')">삭제</a>
+                                <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp2["comment_idx"] ?>', '<?= urlencode($temp2["content"]) ?>', '<?= $temp2["private_flag"] ?>')">수정</a>
+                                <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp2["comment_idx"] ?>')">삭제</a>
                             </div>
                         </div>
                     <?php } ?>
                 <?php } ?>
             </div>
-            <form action="_insert_comment.php" method="post" class="ukp__form ukp__js_mobile_form">
+            <form action="_insert_comment.php" method="post" class="ukp__form ukp__js_content_form">
                 <input type="hidden" name="board_idx" value="<?= $data["board"]["board_idx"] ?>">
-                <input type="hidden" name="parent_comment_idx" class="ukp__js_mobile_parent_comment_idx" value="">
-                <input type="hidden" name="comment_idx" class="ukp__js_mobile_comment_idx" value="">
-                <input type="hidden" class="ukp__js_mobile_confirm_text" value="작성하시겠습니까?">
+                <input type="hidden" name="parent_comment_idx" class="ukp__js_content_parent_comment_idx" value="">
+                <input type="hidden" name="comment_idx" class="ukp__js_content_comment_idx" value="">
+                <input type="hidden" class="ukp__js_content_confirm_text" value="작성하시겠습니까?">
                 <div class="ukp__module_textarea">
-                    <div class="ukp__label ukp__js_mobile_label">댓글작성</div>
-                    <textarea class="ukp__textarea ukp__js_mobile_content" name="content" required=""></textarea>
+                    <div class="ukp__label ukp__js_content_label">댓글작성</div>
+                    <textarea class="ukp__textarea ukp__js_content_content" name="content" required=""></textarea>
                 </div>
                 <div class="ukp__check_list">
                     <label class="ukp__module_checkbox">
-                        <input type="checkbox" class="ukp__check ukp__js_mobile_private_flag" name="private_flag" value="y">
+                        <input type="checkbox" class="ukp__check ukp__js_content_private_flag" name="private_flag" value="y">
                         <div class="ukp__checkbox"></div>
                         <div class="ukp__text">비공개</div>
                     </label>
                 </div>
                 <div class="ukp__btn_list">
-                    <button class="ukp__module_btn ukp__js_mobile_cancel_btn" type="button" onclick="ukp__js_mobile.comment_cancel()" style="display: none;">취소</button>
+                    <button class="ukp__module_btn ukp__js_content_cancel_btn" type="button" onclick="ukp__js_content.comment_cancel()" style="display: none;">취소</button>
                     <button class="ukp__module_btn" type="submit">확인</button>
                 </div>
             </form>
@@ -204,8 +204,8 @@
 </div>
 <script>
     $(document).ready(function () {
-        ukp__js_common.ajax_form(".ukp__js_mobile_form", function ($form) {
-            var text = $(".ukp__js_mobile_confirm_text").val();
+        ukp__js_common.ajax_form(".ukp__js_content_form", function ($form) {
+            var text = $(".ukp__js_content_confirm_text").val();
             if (!confirm(text)) {
                 return false;
             }
@@ -217,40 +217,40 @@
             }
         });
     });
-    var ukp__js_mobile = {
+    var ukp__js_content = {
         comment_answer: function (comment_idx, name) {
-            $(".ukp__js_mobile_form").attr("action", "_insert_comment.php");
-            $(".ukp__js_mobile_parent_comment_idx").val(comment_idx);
-            $(".ukp__js_mobile_comment_idx").val("");
-            $(".ukp__js_mobile_confirm_text").val("작성하시겠습니까?");
-            $(".ukp__js_mobile_label").html("답글작성 (" + name + ")");
-            $(".ukp__js_mobile_cancel_btn").show();
-            $(".ukp__js_mobile_private_flag").prop("checked", false);
-            $(".ukp__js_mobile_content").val("");
-            $("html").scrollTop($(".ukp__js_mobile_form").offset().top);
+            $(".ukp__js_content_form").attr("action", "_insert_comment.php");
+            $(".ukp__js_content_parent_comment_idx").val(comment_idx);
+            $(".ukp__js_content_comment_idx").val("");
+            $(".ukp__js_content_confirm_text").val("작성하시겠습니까?");
+            $(".ukp__js_content_label").html("답글작성 (" + name + ")");
+            $(".ukp__js_content_cancel_btn").show();
+            $(".ukp__js_content_private_flag").prop("checked", false);
+            $(".ukp__js_content_content").val("");
+            $("html").scrollTop($(".ukp__js_content_form").offset().top);
             return false;
         },
         comment_modify: function (comment_idx, content, private_flag) {
-            $(".ukp__js_mobile_form").attr("action", "_update_comment.php");
-            $(".ukp__js_mobile_parent_comment_idx").val("");
-            $(".ukp__js_mobile_comment_idx").val(comment_idx);
-            $(".ukp__js_mobile_confirm_text").val("수정하시겠습니까?");
-            $(".ukp__js_mobile_label").html("답글수정");
-            $(".ukp__js_mobile_cancel_btn").show();
-            $(".ukp__js_mobile_private_flag").prop("checked", private_flag == "y" ? true : false);
-            $(".ukp__js_mobile_content").val(decodeURI(content));
-            $("html").scrollTop($(".ukp__js_mobile_form").offset().top);
+            $(".ukp__js_content_form").attr("action", "_update_comment.php");
+            $(".ukp__js_content_parent_comment_idx").val("");
+            $(".ukp__js_content_comment_idx").val(comment_idx);
+            $(".ukp__js_content_confirm_text").val("수정하시겠습니까?");
+            $(".ukp__js_content_label").html("답글수정");
+            $(".ukp__js_content_cancel_btn").show();
+            $(".ukp__js_content_private_flag").prop("checked", private_flag == "y" ? true : false);
+            $(".ukp__js_content_content").val(decodeURI(content));
+            $("html").scrollTop($(".ukp__js_content_form").offset().top);
             return false;
         },
         comment_cancel: function () {
-            $(".ukp__js_mobile_form").attr("action", "_insert_comment.php");
-            $(".ukp__js_mobile_parent_comment_idx").val("");
-            $(".ukp__js_mobile_comment_idx").val("");
-            $(".ukp__js_mobile_confirm_text").val("작성하시겠습니까?");
-            $(".ukp__js_mobile_label").html("댓글작성");
-            $(".ukp__js_mobile_cancel_btn").hide();
-            $(".ukp__js_mobile_private_flag").prop("checked", false);
-            $(".ukp__js_mobile_content").val("");
+            $(".ukp__js_content_form").attr("action", "_insert_comment.php");
+            $(".ukp__js_content_parent_comment_idx").val("");
+            $(".ukp__js_content_comment_idx").val("");
+            $(".ukp__js_content_confirm_text").val("작성하시겠습니까?");
+            $(".ukp__js_content_label").html("댓글작성");
+            $(".ukp__js_content_cancel_btn").hide();
+            $(".ukp__js_content_private_flag").prop("checked", false);
+            $(".ukp__js_content_content").val("");
             return false;
         },
         comment_delete: function (comment_idx) {

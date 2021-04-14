@@ -37,7 +37,7 @@
             <a href="#" class="ukp__href" onclick="history.back(); return false;">&lt; 만화리스트</a>
         </div>
         <div class="ukp__btn_list">
-            <button class="ukp__module_btn" type="button" onclick="location.href = 'write_comic.php'">작성</button>
+            <button class="ukp__module_btn" type="button" onclick="location.href = 'write_comic.php?category_idx=<?= $data["category"]["category_idx"] ?>'">작성</button>
         </div>
         <table class="ukp__module_layout_table">
             <colgroup>
