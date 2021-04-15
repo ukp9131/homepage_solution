@@ -2750,7 +2750,7 @@ class Ukp {
         $binding = $where_info["binding"];
         //삭제여부 사용 안하는경우
         if(!$delete_flag_bool) {
-            str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $database);
+            $sql = str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $sql);
         }
         //order by 있는경우
         if (is_array($order_by_arr) && count($order_by_arr) > 0) {
@@ -2776,15 +2776,16 @@ class Ukp {
      * 삭제여부는 항상 n<br>
      * 테이블별로 임의로 추가해서 사용
      * 
-     * require  2021.03.25 solution_create_where, db_row_array
-     * @version 2021.03.25
+     * require  2021.04.15 solution_create_where, db_row_array
+     * @version 2021.04.15
      * 
      * @param  string $table     테이블명
      * @param  array  $where_arr where문
+     * @param  bool   $delete_flag_bool true - 삭제여부 사용, false - 삭제여부 사용안함
      * @param  string $database  사용 데이터베이스
      * @return array             테이블 cnt쿼리 결과
      */
-    function solution_table_cnt($table, $where_arr = array(), $database = "default") {
+    function solution_table_cnt($table, $where_arr = array(), $delete_flag_bool = true, $database = "default") {
         $where_info = $this->solution_create_where($where_arr);
         if($table == "admin") {
             
@@ -2860,6 +2861,10 @@ class Ukp {
             ";
         }
         $binding = $where_info["binding"];
+        //삭제여부 사용 안하는경우
+        if(!$delete_flag_bool) {
+            $sql = str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $sql);
+        }
         $result = $this->db_row_array($sql, $binding, $database);
         return $result;
     }
