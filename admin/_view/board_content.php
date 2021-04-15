@@ -49,7 +49,7 @@
         font-weight: bold;
     }
     .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list {
-        
+
     }
     .ukp__box_content > .ukp__board > .ukp__comment > .ukp__comment_list > .ukp__row {
         border-bottom: 0.0625rem solid #dee2e6;
@@ -151,11 +151,13 @@
                             <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_answer('<?= $temp["comment_idx"] ?>', '<?= $temp["name"] ?>')">답글</a>
                         </div>
                         <div class="ukp__content">
-                            <?= nl2br($temp["content"]) ?>
+                            <?= $temp["delete_flag"] == "y" ? "(삭제됨) " : "" ?><?= nl2br($temp["content"]) ?>
                         </div>
                         <div class="ukp__option">
                             <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp["comment_idx"] ?>', '<?= urlencode($temp["content"]) ?>', '<?= $temp["private_flag"] ?>')">수정</a>
-                            <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp["comment_idx"] ?>')">삭제</a>
+                            <?php if ($temp["delete_flag"] == "n") { ?>
+                                <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp["comment_idx"] ?>')">삭제</a>
+                            <?php } ?>
                         </div>
                     </div>
                     <?php foreach ($temp["child"] as $temp2) { ?>
@@ -165,11 +167,13 @@
                                 <div class="ukp__date"><?= $temp2["insert_date"] ?><?= $temp2["update_date"] == "" ? "" : " (수정됨)" ?></div>
                             </div>
                             <div class="ukp__content">
-                                <?= nl2br($temp2["content"]) ?>
+                                <?= $temp2["delete_flag"] == "y" ? "(삭제됨) " : "" ?><?= nl2br($temp2["content"]) ?>
                             </div>
                             <div class="ukp__option">
                                 <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_modify('<?= $temp2["comment_idx"] ?>', '<?= urlencode($temp2["content"]) ?>', '<?= $temp2["private_flag"] ?>')">수정</a>
-                                <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp2["comment_idx"] ?>')">삭제</a>
+                                <?php if ($temp2["delete_flag"] == "n") { ?>
+                                    <a href="#" class="ukp__href" onclick="return ukp__js_content.comment_delete('<?= $temp2["comment_idx"] ?>')">삭제</a>
+                                <?php } ?>
                             </div>
                         </div>
                     <?php } ?>

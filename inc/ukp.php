@@ -2468,6 +2468,7 @@ class Ukp {
                     `c4`.`title`,
                     `c4`.`page`,
                     `c4`.`view_cnt`,
+                    `c4`.`download_url`,
                     `c4`.`insert_date`,
                     `c4`.`insert_time`,
                     `a2`.`name` as `author`,
@@ -2550,17 +2551,18 @@ class Ukp {
      * 삭제여부는 항상 n<br>
      * 테이블별로 임의로 추가해서 사용<br>
      * 
-     * require  2021.03.25 solution_create_where, db_result_array
-     * @version 2021.03.25
+     * require  2021.04.15 solution_create_where, db_result_array
+     * @version 2021.04.15
      * 
-     * @param  string $table        테이블명
-     * @param  array  $where_arr    where문
-     * @param  array  $limit_arr    ["start"] - 시작, ["limit"] - 갯수
-     * @param  array  $order_by_arr 정렬 배열(기본정렬인경우 빈배열)
-     * @param  string $database     사용 데이터베이스
-     * @return array                테이블 리스트
+     * @param  string $table            테이블명
+     * @param  array  $where_arr        where문
+     * @param  array  $limit_arr        ["start"] - 시작, ["limit"] - 갯수
+     * @param  array  $order_by_arr     정렬 배열(기본정렬인경우 빈배열)
+     * @param  bool   $delete_flag_bool true - 삭제여부 사용, false - 삭제여부 사용안함
+     * @param  string $database         사용 데이터베이스
+     * @return array                    테이블 리스트
      */
-    function solution_table_list($table, $where_arr = array(), $limit_arr = array(), $order_by_arr = array(), $database = "default") {
+    function solution_table_list($table, $where_arr = array(), $limit_arr = array(), $order_by_arr = array(), $delete_flag_bool = true, $database = "default") {
         $where_info = $this->solution_create_where($where_arr);
         if($table == "admin") {
             
@@ -2680,7 +2682,8 @@ class Ukp {
                     `c3`.`insert_date`,
                     `c3`.`insert_time`,
                     `c3`.`update_date`,
-                    `c3`.`update_time`
+                    `c3`.`update_time`,
+                    `c3`.`delete_flag`
                 from
                     `comment` as `c3`
                 left join
@@ -2745,6 +2748,10 @@ class Ukp {
             ";
         }
         $binding = $where_info["binding"];
+        //삭제여부 사용 안하는경우
+        if(!$delete_flag_bool) {
+            str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $database);
+        }
         //order by 있는경우
         if (is_array($order_by_arr) && count($order_by_arr) > 0) {
             $sql = array_shift(explode("order by", $sql));
@@ -2930,7 +2937,7 @@ class Ukp {
         $order_arr = array(
             "c3.comment_idx"
         );
-        $result = $this->solution_table_list("comment", $where_arr, array(), $order_arr);
+        $result = $this->solution_table_list("comment", $where_arr, array(), $order_arr, false);
         $child_arr = array();
         foreach($result as $temp) {
             $child_arr[$temp["parent_comment_idx"]][] = $temp;
@@ -2942,7 +2949,7 @@ class Ukp {
         $order_arr = array(
             "c3.comment_idx"
         );
-        $result = $this->solution_table_list("comment", $where_arr, array(), $order_arr);
+        $result = $this->solution_table_list("comment", $where_arr, array(), $order_arr, false);
         $parent_arr = array();
         foreach($result as $k => $v) {
             $parent_arr[$k] = $v;

@@ -48,7 +48,9 @@
     </div>
     <div class="ukp__content">
         <div class="ukp__btn_list">
-            <button class="ukp__module_btn" type="button" onclick="location.href = 'write_board.php?category_idx=<?= $data["category"]["category_idx"] ?>'">작성</button>
+            <?php if ($data["member_idx"] != "") { ?>
+                <button class="ukp__module_btn" type="button" onclick="location.href = 'write_board.php?category_idx=<?= $data["category"]["category_idx"] ?>'">작성</button>
+            <?php } ?>
         </div>
         <div class="ukp__module_layout_table_m">
             <?php foreach ($data["list"] as $temp) { ?>
@@ -58,7 +60,7 @@
                     </div>
                     <div class="ukp__content">
                         <div class="ukp__left">
-                            <a href="board_content.php?board_idx=<?= $temp["board_idx"] ?>" class="ukp__href">
+                            <a href="board_content.php?board_idx=<?= $temp["board_idx"] ?>" class="ukp__href" onclick="return ukp__js_content.private_check('<?= $temp["private_flag"] ?>', '<?= $temp["admin_flag"] ?>', '<?= $temp["member_idx"] ?>')">
                                 <?= $temp["title"] ?>
                                 <?php if ($temp["private_flag"] == "y") { ?>
                                     <img src="image/lock.svg" alt="" class="ukp__image">
@@ -86,23 +88,23 @@
             <a href="#" class="ukp__side" onclick="location.replace('<?= $data["pagination"]["last_link"] ?>'); return false;">&gt;</a>
         </div>
     </div>
+    <input type="hidden" class="ukp__js_mobile_member_idx" value="<?= $data["member_idx"] ?>">
 </div>
 <script>
     var ukp__js_mobile = {
-        delete_board: function (board_idx) {
-            if (!confirm("정말로 삭제하시겠습니까?")) {
+        private_check: function (private_flag, admin_flag, member_idx) {
+            var session_member_idx = $(".ukp__js_content_member_idx").val();
+            if (private_flag == "n") {
+                return true;
+            } else if (admin_flag == "y") {
+                alert("비공개 게시글입니다.");
+                return false;
+            } else if (member_idx == "") {
+                return true;
+            } else if (member_idx != session_member_idx) {
+                alert("비공개 게시글입니다.");
                 return false;
             }
-            ukp__js_common.ajax("_delete_board.php", {
-                board_idx: board_idx
-            }, function (data) {
-                if (data == "1") {
-                    location.reload();
-                } else if (data == "999") {
-                    location.reload();
-                }
-            });
-            return false;
         }
     };
 </script>

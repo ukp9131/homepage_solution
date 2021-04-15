@@ -73,6 +73,9 @@
         </div>
         <div class="ukp__btn_list">
             <button class="ukp__module_btn" type="button" onclick="location.href = 'comic_view.php?comic_idx=<?= $data["comic"]["comic_idx"] ?>'">전체보기</button>
+            <?php if ($data["comic"]["download_url"] != "") { ?>
+                <button class="ukp__module_btn" type="button" onclick="window.open('<?= $data["comic"]["download_url"] ?>')">다운로드</button>
+            <?php } ?>
             <button class="ukp__module_btn" type="button" onclick="history.back()">뒤로가기</button>
         </div>
     </div>

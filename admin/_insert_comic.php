@@ -16,6 +16,7 @@ $category_idx = intval($ukp->input_request("category_idx"));
 $author = trim(strtolower($ukp->input_request("author")));
 $title = trim($ukp->input_request("title"));
 $page = $ukp->input_request("page");
+$download_url = $ukp->input_request("download_url");
 
 $row_arr = array(
     "name" => $author
@@ -44,7 +45,8 @@ $row_arr = array(
     "category_idx" => $category_idx,
     "author_idx" => $author_idx,
     "title" => $title,
-    "page" => $page
+    "page" => $page,
+    "download_url" => $download_url
 );
 $where_arr = array(
     "author_idx" => $author_idx,

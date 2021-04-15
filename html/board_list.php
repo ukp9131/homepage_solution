@@ -15,6 +15,7 @@ $page = intval($ukp->input_request("page"));
 $limit = 10;
 
 $data["category"] = $ukp->solution_table_info("category", $category_idx);
+$data["member_idx"] = $ukp->session_get("member_idx");
 
 $where_arr = array(
     "b.category_idx" => $category_idx
@@ -28,6 +29,7 @@ $ukp->solution_connect_log();
 $data["remap_code"] = $ukp->solution_get_code();
 $data["remap_dir"] = dirname(__FILE__);
 $data["remap_base"] = basename(__FILE__);
+$data["remap_member_idx"] = $ukp->session_get("member_idx");
 $data["remap_header_bool"] = true;
 if($data["remap_header_bool"]) {
     $data["remap_category"] = $ukp->solution_category_list();

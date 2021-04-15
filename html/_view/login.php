@@ -61,9 +61,9 @@
         </div>
         <div class="ukp__check_list">
             <label class="ukp__module_checkbox">
-                <input type="checkbox" class="ukp__check">
+                <input type="checkbox" class="ukp__check ukp__js_content_auto_login_flag" value="y">
                 <div class="ukp__checkbox"></div>
-                <div class="ukp__text">이메일 저장</div>
+                <div class="ukp__text">자동 로그인</div>
             </label>
         </div>
         <button class="ukp__module_btn" type="submit">로그인</button>
@@ -77,8 +77,12 @@
     $(document).ready(function () {
         ukp__js_common.ajax_form(".ukp__js_content_form", function ($form) {
 
-        }, function (data) {
+        }, function (data, $form) {
             if (data == "1") {
+                if ($(".ukp__js_content_auto_login_flag").prop("checked")) {
+                    localStorage.setItem("ukp__member_id", $form.find("[name=id]").val());
+                    localStorage.setItem("ukp__member_pw", $form.find("[name=pw]").val());
+                }
                 location.href = "index.php";
             } else if (data == "2") {
                 alert("아이디 또는 비밀번호가 일치하지 않습니다.");

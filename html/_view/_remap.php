@@ -48,6 +48,10 @@
         <script src="<?= $data["remap_code"]["public_url"] ?>/js/ukp.js"></script>
         <!-- /js -->
         <style>
+            .ukp__module_markdown {
+                border: 0;
+                padding: 0;
+            }
             * {
                 margin: 0;
                 padding: 0;
@@ -148,11 +152,27 @@
                 color: #343a40;
                 padding: 1.25rem;
             }
-            .ukp__box_wrap > .ukp__pc > .ukp__header > .ukp__right > .ukp__href {
-                font-size: 0.75rem;
-                font-weight: bold;
-                text-decoration: underline;
-                line-height: 2.5rem;
+            .ukp__box_wrap > .ukp__pc > .ukp__header > .ukp__right > .ukp__image {
+                height: 2.5rem;
+                cursor: pointer;
+                border: 0.0625rem solid #ccc;
+                border-radius: 1.25rem;
+            }
+            .ukp__box_wrap > .ukp__pc > .ukp__header > .ukp__right > .ukp__list {
+                position: absolute;
+                right: 0;
+                top: 3.75rem;
+                z-index: 999;
+                border-top: 0.0625rem solid #dee2e6;
+            }
+            .ukp__box_wrap > .ukp__pc > .ukp__header > .ukp__right > .ukp__list > .ukp__row {
+                border: 0.0625rem solid #dee2e6;
+                border-top: 0;
+                font-size: 0.875rem;
+                padding: 0.625rem 0;
+                width: 5rem;
+                cursor: pointer;
+                background-color: white;
             }
             .ukp__box_wrap > .ukp__pc > .ukp__footer {
                 background-color: white;
@@ -216,16 +236,32 @@
             }
             .ukp__box_wrap > .ukp__mobile > .ukp__header > .ukp__href_list {
                 float: right;
+                font-size: 0;
+                text-align: right;
+                position: relative;
             }
-            .ukp__box_wrap > .ukp__mobile > .ukp__header > .ukp__href_list > .ukp__href {
-                line-height: 1.875rem;
+            .ukp__box_wrap > .ukp__mobile > .ukp__header > .ukp__href_list > .ukp__image {
+                height: 1.875rem;
+                cursor: pointer;
+                border-radius: 0.9375rem;
+                border: 0.0625rem solid #ccc;
+            }
+            .ukp__box_wrap > .ukp__mobile > .ukp__header > .ukp__href_list > .ukp__list {
+                border-top: 0.0625rem solid #dee2e6;
+                position: absolute;
+                right: 0;
+                top: 1.875rem;
+                text-align: center;
+                z-index: 999;
+            }
+            .ukp__box_wrap > .ukp__mobile > .ukp__header > .ukp__href_list > .ukp__list > .ukp__row {
+                width: 3.75rem;
+                padding: 0.25rem 0;
                 font-size: 0.75rem;
-                font-weight: bold;
-                text-decoration: underline;
-                color: #343a40;
-                display: inline-block;
-                vertical-align: middle;
-                margin-left: 0.375rem;
+                background-color: white;
+                cursor: pointer;
+                border: 0.0625rem solid #dee2e6;
+                border-top: 0;
             }
             .ukp__box_wrap > .ukp__mobile > .ukp__header > .ukp__menu {
                 float: right;
@@ -355,7 +391,14 @@
                             <?php } ?>
                         </div>
                         <div class="ukp__right">
-                            <a href="login.php" class="ukp__href">로그인</a>
+                            <?php if ($data["remap_member_idx"] == "") { ?>
+                                <img src="image/user_off.png" alt="" class="ukp__image" onclick="location.href = 'login.php'">
+                            <?php } else { ?>
+                                <img src="image/user_on.png" alt="" class="ukp__image" onclick="ukp__js_wrap.login_toggle()">
+                                <div class="ukp__list ukp__js_wrap_login" style="display: none;">
+                                    <div class="ukp__row" onclick="ukp__js_wrap.logout()">로그아웃</div>
+                                </div>
+                            <?php } ?>
                         </div>
                     </div>
                 <?php } ?>
@@ -398,7 +441,14 @@
                         </div>
                         <img src="image/bars.svg" alt="" class="ukp__menu" onclick="ukp__js_wrap.mobile_menu_toggle()">
                         <div class="ukp__href_list">
-                            <a href="login.php" class="ukp__href">로그인</a>
+                            <?php if ($data["remap_member_idx"] == "") { ?>
+                                <img src="image/user_off.png" alt="" class="ukp__image" onclick="location.href = 'login.php'">
+                            <?php } else { ?>
+                                <img src="image/user_on.png" alt="" class="ukp__image" onclick="ukp__js_wrap.login_toggle()">
+                                <div class="ukp__list ukp__js_wrap_login" style="display: none;">
+                                    <div class="ukp__row" onclick="ukp__js_wrap.logout()">로그아웃</div>
+                                </div>
+                            <?php } ?>
                         </div>
                     </div>
                     <div class="ukp__menu ukp__js_wrap_menu" style="display: none;">
@@ -490,10 +540,24 @@
                 mobile_menu_toggle: function () {
                     $(".ukp__js_wrap_menu").toggle();
                 },
-                menu_check: function(category_idx, parent_flag, child_cnt) {
-                    if(child_cnt > 0) {
+                menu_check: function (category_idx, parent_flag, child_cnt) {
+                    if (child_cnt > 0) {
                         return false;
                     }
+                },
+                logout: function () {
+                    ukp__js_common.ajax("_logout.php", {
+
+                    }, function (data) {
+                        if (data == "1") {
+                            localStorage.removeItem("ukp__member_id");
+                            localStorage.removeItem("ukp__member_pw");
+                            location.reload();
+                        }
+                    });
+                },
+                login_toggle: function () {
+                    $(".ukp__js_wrap_login").toggle();
                 }
             };
         </script>

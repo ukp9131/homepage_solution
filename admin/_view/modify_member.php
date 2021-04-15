@@ -34,10 +34,10 @@
         </div>
         <div class="ukp__row">
             <div class="ukp__module_input">
-                <div class="ukp__label">아이디</div>
+                <div class="ukp__label">아이디(이메일)</div>
                 <div class="ukp__content">
                     <div class="ukp__before"></div>
-                    <input class="ukp__input" type="text" name="id" value="<?= $data["member"]["id"] ?>" required="">
+                    <input class="ukp__input" type="email" name="id" value="<?= $data["member"]["id"] ?>" required="">
                     <div class="ukp__after"></div>
                 </div>
             </div>

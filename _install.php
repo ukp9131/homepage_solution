@@ -171,6 +171,7 @@ CREATE TABLE if not exists {$prefix}comic
     `title`         varchar(191)    NULL        COMMENT '제목', 
     `page`          int(11)         NULL        DEFAULT 0 COMMENT '페이지', 
     `view_cnt`      int(11)         NULL        DEFAULT 0 COMMENT '조회수', 
+    `download_url`  text            NULL        COMMENT '다운로드url', 
     `insert_date`   date            NULL        COMMENT '입력일', 
     `insert_time`   time            NULL        COMMENT '입력시', 
     `delete_flag`   varchar(1)      NULL        DEFAULT 'n' COMMENT '삭제여부', 

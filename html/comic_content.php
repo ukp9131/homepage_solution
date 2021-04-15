@@ -32,6 +32,7 @@ $ukp->solution_connect_log();
 $data["remap_code"] = $ukp->solution_get_code();
 $data["remap_dir"] = dirname(__FILE__);
 $data["remap_base"] = basename(__FILE__);
+$data["remap_member_idx"] = $ukp->session_get("member_idx");
 $data["remap_header_bool"] = true;
 if($data["remap_header_bool"]) {
     $data["remap_category"] = $ukp->solution_category_list();
@@ -42,7 +43,7 @@ $data["remap_url"] = ($ukp->common_is_https() ? "https://" : "http://") . "{$ukp
 //article(게시글정보) 또는 website(홈페이지정보)
 $data["remap_type"] = "article";
 //게시글제목
-$data["remap_title"] = $data["comic"]["title"];
+$data["remap_title"] = "[{$data["comic"]["author"]}] {$data["comic"]["title"]}";
 //게시글내용
 $data["remap_content"] = "";
 //게시글썸네일

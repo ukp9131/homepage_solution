@@ -90,7 +90,17 @@
                 <div class="ukp__label">페이지</div>
                 <div class="ukp__content">
                     <div class="ukp__before"></div>
-                    <input class="ukp__input" type="text" name="page" value="<?= $data["comic"]["page"] ?>" required="">
+                    <input class="ukp__input" type="tel" name="page" value="<?= $data["comic"]["page"] ?>" required="">
+                    <div class="ukp__after"></div>
+                </div>
+            </div>
+        </div>
+        <div class="ukp__row">
+            <div class="ukp__module_input">
+                <div class="ukp__label">다운로드url</div>
+                <div class="ukp__content">
+                    <div class="ukp__before"></div>
+                    <input class="ukp__input" type="text" name="download_url" value="<?= $data["comic"]["download_url"] ?>">
                     <div class="ukp__after"></div>
                 </div>
             </div>

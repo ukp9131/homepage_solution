@@ -16,6 +16,7 @@ $comic_idx = intval($ukp->input_request("comic_idx"));
 $author = trim(strtolower($ukp->input_request("author")));
 $title = trim($ukp->input_request("title"));
 $page = $ukp->input_request("page");
+$download_url = $ukp->input_request("download_url");
 
 $row_arr = array(
     "name" => $author
@@ -43,7 +44,8 @@ if ($author_idx == 0) {
 $row_arr = array(
     "author_idx" => $author_idx,
     "title" => $title,
-    "page" => $page
+    "page" => $page,
+    "download_url" => $download_url
 );
 $where_arr = array(
     "author_idx" => $author_idx,
