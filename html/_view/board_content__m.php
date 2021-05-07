@@ -1,12 +1,23 @@
 <style>
     .ukp__box_mobile {
         position: relative;
-        padding: 1.25rem;
+        padding-bottom: 1.875rem;
+    }
+    .ukp__box_mobile > .ukp__title {
+        background-color: black;
+        color: white;
+        margin-bottom: 1.875rem;
+    }
+    .ukp__box_mobile > .ukp__title > .ukp__row {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.75rem;
     }
     .ukp__box_mobile > .ukp__board {
         border: 1px solid #dee2e6;
         background-color: white;
         padding: 1.25rem;
+        width: calc(100% - 2.5rem);
+        margin: 0 auto;
     }
     .ukp__box_mobile > .ukp__board > .ukp__title {
         font-size: 1rem;
@@ -126,6 +137,11 @@
     }
 </style>
 <div class="ukp__box_mobile">
+    <div class="ukp__title">
+        <div class="ukp__row">
+            홈 &gt; <?= $data["board"]["category_title"] ?> &gt; <?= $data["board"]["title"] ?>
+        </div>
+    </div>
     <div class="ukp__board">
         <div class="ukp__title">
             <?= $data["board"]["title"] ?>

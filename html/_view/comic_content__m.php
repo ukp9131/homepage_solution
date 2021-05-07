@@ -50,7 +50,10 @@
     }
     .ukp__box_mobile > .ukp__board > .ukp__btn_list > .ukp__module_btn {
         display: inline-block;
-        margin-left: 0.625rem;
+        margin-left: 0.3125rem;
+        height: 2rem;
+        line-height: 2rem;
+        font-size: 0.75rem;
     }
 </style>
 <div class="ukp__box_mobile">

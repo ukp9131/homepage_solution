@@ -6,7 +6,7 @@
  * 접두어가 solution인경우 개발환경에 맞게 사용<br>
  * 
  * @author  ukp
- * @version 2021.04.13
+ * @version 2021.05.07
  * @since   PHP 5 >= 5.2.0, PHP 7, PHP 8
  */
 class Ukp {
@@ -2551,8 +2551,8 @@ class Ukp {
      * 삭제여부는 항상 n<br>
      * 테이블별로 임의로 추가해서 사용<br>
      * 
-     * require  2021.04.15 solution_create_where, db_result_array
-     * @version 2021.04.15
+     * require  2021.05.07 solution_create_where, db_result_array
+     * @version 2021.05.07
      * 
      * @param  string $table            테이블명
      * @param  array  $where_arr        where문
@@ -2754,7 +2754,8 @@ class Ukp {
         }
         //order by 있는경우
         if (is_array($order_by_arr) && count($order_by_arr) > 0) {
-            $sql = array_shift(explode("order by", $sql));
+            $sql_arr = explode("order by", $sql);
+            $sql = $sql_arr[0];
             $sql .= " order by ";
             foreach ($order_by_arr as $k => $v) {
                 if ($k > 0) {

@@ -31,6 +31,14 @@ $result = $ukp->db_row_array($sql, $binding);
 
 if (isset($result["member_idx"])) {
     $ukp->session_set("member_idx", $result["member_idx"]);
+    $row_arr = array(
+        "last_login_date is" => "now()",
+        "last_login_time is" => "now()"
+    );
+    $where_arr = array(
+        "member_idx" => $result["member_idx"]
+    );
+    $ukp->solution_update("member", $row_arr, $where_arr);
     echo "1";
     return;
 }

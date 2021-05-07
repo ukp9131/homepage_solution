@@ -1,6 +1,7 @@
 <style>
     .ukp__box_content {
         position: relative;
+        padding-bottom: 1.875rem;
     }
     .ukp__box_content > .ukp__title {
         background-color: black;

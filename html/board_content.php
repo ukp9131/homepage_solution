@@ -12,6 +12,7 @@ $ukp = new Ukp();
 
 $board_idx = intval($ukp->input_request("board_idx"));
 
+$date = date("Y-m-d");
 $cookie_key = "ukp__board_{$board_idx}_{$date}";
 if(!isset($_COOKIE[$cookie_key])) {
     $row_arr = array(

@@ -1,6 +1,7 @@
 <style>
     .ukp__box_mobile {
         position: relative;
+        padding-bottom: 1.875rem;
     }
     .ukp__box_mobile > .ukp__title {
         background-color: black;
@@ -17,7 +18,6 @@
         border: 1px solid #dee2e6;
         background-color: white;
         padding: 1.25rem;
-        margin-bottom: 1.875rem;
     }
     .ukp__box_mobile > .ukp__content > .ukp__btn_list {
         font-size: 0;
