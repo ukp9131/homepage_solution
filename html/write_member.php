@@ -10,6 +10,7 @@ $dir = dirname(__FILE__);
 require_once "{$dir}/../inc/ukp.php";
 $ukp = new Ukp();
 
+$data["privacy_policy"] = $ukp->solution_privacy_policy();
 
 //remap
 $ukp->solution_connect_log();

@@ -48,6 +48,13 @@
         <script src="<?= $data["remap_code"]["public_url"] ?>/js/ukp.js"></script>
         <!-- /js -->
         <style>
+            /* datepicker css */
+            .ui-datepicker select.ui-datepicker-year {
+                width: 40%;
+            }
+            .ui-datepicker select.ui-datepicker-month {
+                width: 35%;
+            }
             .ukp__module_markdown {
                 border: 0;
                 padding: 0;

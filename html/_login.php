@@ -11,7 +11,7 @@ require_once "{$dir}/../inc/ukp.php";
 $ukp = new Ukp();
 
 $id = $ukp->input_request("id");
-$pw = "*" . hash("sha256", $pw);
+$pw = "*" . hash("sha256", $ukp->input_request("pw"));
 
 $sql = "
     select

@@ -18,7 +18,7 @@ $content = $ukp->input_request("content");
 $description = $ukp->input_request("description");
 
 //코드정보
-$result = $ukp->solution_table_info("code", array("code_idx" => $code_idx));
+$result = $ukp->solution_table_info("code", $code_idx);
 
 if ($result["core_flag"] == "y") {
     $row_arr = array(
