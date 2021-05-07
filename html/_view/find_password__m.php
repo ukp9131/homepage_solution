@@ -51,8 +51,8 @@
     }
 </style>
 <div class="ukp__box_mobile">
-    <form action="_insert_member.php" method="post" class="ukp__form ukp__js_mobile_form" autocomplete="off">
-        <div class="ukp__title">회원가입</div>
+    <form action="_update_find_password.php" method="post" class="ukp__form ukp__js_mobile_form" autocomplete="off">
+        <div class="ukp__title">비밀번호 찾기</div>
         <div class="ukp__input_list">
             <div class="ukp__module_input">
                 <div class="ukp__label">이메일</div>
@@ -62,7 +62,7 @@
                     <div class="ukp__after"></div>
                 </div>
             </div>
-            <button class="ukp__module_btn" type="button" onclick="ukp__js_mobile.email_check(this)">인증</button>
+            <button class="ukp__module_btn" type="button" onclick="ukp__js_mobile.email_find_check(this)">인증</button>
         </div>
         <div class="ukp__input_list">
             <div class="ukp__module_input">
@@ -74,30 +74,6 @@
                 </div>
             </div>
             <button class="ukp__module_btn" type="button" onclick="ukp__js_mobile.email_auth(this)">확인</button>
-        </div>
-        <div class="ukp__module_input">
-            <div class="ukp__label">비밀번호</div>
-            <div class="ukp__content">
-                <div class="ukp__before"></div>
-                <input class="ukp__input" type="password" name="pw" required="">
-                <div class="ukp__after"></div>
-            </div>
-        </div>
-        <div class="ukp__module_input">
-            <div class="ukp__label">비밀번호 확인</div>
-            <div class="ukp__content">
-                <div class="ukp__before"></div>
-                <input class="ukp__input" type="password" name="pw_check" required="">
-                <div class="ukp__after"></div>
-            </div>
-        </div>
-        <div class="ukp__module_input">
-            <div class="ukp__label">닉네임</div>
-            <div class="ukp__content">
-                <div class="ukp__before"></div>
-                <input class="ukp__input" type="text" name="nickname" required="">
-                <div class="ukp__after"></div>
-            </div>
         </div>
         <div class="ukp__module_input">
             <div class="ukp__label">이름</div>
@@ -122,16 +98,21 @@
                 <option value="w">여</option>
             </select>
         </div>
-        <div class="ukp__module_textarea">
-            <div class="ukp__label">개인정보 처리방침</div>
-            <textarea class="ukp__textarea"><?= $data["privacy_policy"] ?></textarea>
+        <div class="ukp__module_input">
+            <div class="ukp__label">변경할 비밀번호</div>
+            <div class="ukp__content">
+                <div class="ukp__before"></div>
+                <input class="ukp__input" type="password" name="pw" required="">
+                <div class="ukp__after"></div>
+            </div>
         </div>
-        <div class="ukp__check_list">
-            <label class="ukp__module_checkbox">
-                <input type="checkbox" class="ukp__check ukp__js_mobile_privacy_policy" value="y">
-                <div class="ukp__checkbox"></div>
-                <div class="ukp__text">동의합니다.</div>
-            </label>
+        <div class="ukp__module_input">
+            <div class="ukp__label">비밀번호 확인</div>
+            <div class="ukp__content">
+                <div class="ukp__before"></div>
+                <input class="ukp__input" type="password" name="pw_check" required="">
+                <div class="ukp__after"></div>
+            </div>
         </div>
         <div class="ukp__btn_list">
             <button class="ukp__module_btn" type="button" onclick="history.back()">뒤로가기</button>
@@ -145,25 +126,20 @@
             if ($form.find("[name=pw]").val() != $form.find("[name=pw_check]").val()) {
                 alert("비밀번호가 일치하지 않습니다.");
                 return false;
-            } else if(!$(".ukp__js_mobile_privacy_policy").prop("checked")) {
-                alert("개인정보 처리방침에 동이해야합니다.");
-                return false;
             }
         }, function (data) {
             if (data == "1") {
-                alert("회원가입을 완료하였습니다. 로그인해주세요.");
+                alert("비밀번호 변경이 완료되었습니다. 로그인해주세요.");
                 history.back();
             } else if (data == "2") {
-                alert("중복된 이메일입니다.");
-            } else if (data == "3") {
-                alert("중복된 닉네임입니다.");
-            } else if (data == "4") {
                 alert("이메일인증이 필요합니다.");
+            } else if (data == "3") {
+                alert("계정정보가 일치하지 않습니다.");
             }
         });
     });
     var ukp__js_mobile = {
-        email_check: function (my) {
+        email_find_check: function (my) {
             var id = $(".ukp__js_mobile_id").val();
             if (id == "") {
                 alert("이메일을 입력해주세요.");
@@ -173,13 +149,13 @@
             var onclick = $(my).attr("onclick");
             $(my).attr("onclick", "return false");
             $(my).html(html + "...");
-            ukp__js_common.ajax("_email_check.php", {
+            ukp__js_common.ajax("_email_find_check.php", {
                 id: id
             }, function (data) {
                 if (data == "1") {
                     alert("인증번호를 발송했습니다.");
                 } else if (data == "2") {
-                    alert("중복된 이메일입니다.");
+                    alert("존재하지 않는 계정입니다.");
                 }
                 $(my).attr("onclick", onclick);
                 $(my).html(html);

@@ -119,7 +119,7 @@
         </div>
         <div class="ukp__module_select">
             <div class="ukp__title">성별</div>
-            <select class="ukp__select">
+            <select class="ukp__select" name="gender">
                 <option value="m">남</option>
                 <option value="w">여</option>
             </select>
