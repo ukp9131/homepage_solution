@@ -6,7 +6,7 @@
  * 접두어가 solution인경우 개발환경에 맞게 사용<br>
  * 
  * @author  ukp
- * @version 2021.05.07
+ * @version 2021.05.13
  * @since   PHP 5 >= 5.2.0, PHP 7, PHP 8
  */
 class Ukp {
@@ -1594,17 +1594,17 @@ class Ukp {
      * 테이블 인서트(1개)<br>
      * 테이블에 insert_date, insert_time 필수
      * 
-     * require  2020.12.08 db_query, db_affected_rows, db_insert_id
-     * @version 2020.12.08
+     * require  2021.05.13 db_query, db_affected_rows, db_insert_id
+     * @version 2021.05.13
      * 
-     * @param  string $main_table  테이블명
-     * @param  array  $main_row    입력할 row, key가 is 인경우 이스케이프 처리안함
-     * @param  array  $main_where  중복 조건문(key에 다른기호 사용 가능)
-     * @param  bool   $add_or_flag true - 중복체크 or문, false - 중복체크 and문
-     * @param  string $database    사용할 db명
-     * @return int                 insert_id(입력 안된경우 0)
+     * @param  string $main_table 테이블명
+     * @param  array  $main_row   입력할 row, key가 is 인경우 이스케이프 처리안함
+     * @param  array  $main_where 중복 조건문(key에 다른기호 사용 가능)
+     * @param  bool   $or_bool    true - 중복체크 or문, false - 중복체크 and문
+     * @param  string $database   사용할 db명
+     * @return int                insert_id(입력 안된경우 0)
      */
-    function solution_insert($main_table, $main_row, $main_where = array(), $add_or_flag = true, $database = "default") {
+    function solution_insert($main_table, $main_row, $main_where = array(), $or_bool = true, $database = "default") {
         $insert_into = "";
         $insert_select = "";
         $insert_where = "";
@@ -1623,7 +1623,7 @@ class Ukp {
         }
         $i = 0;
         foreach ($main_where as $k => $v) {
-            if ($i == "0" || !$add_or_flag) {
+            if ($i == "0" || !$or_bool) {
                 $con = "and";
             } else {
                 $con = "or";
@@ -1670,8 +1670,8 @@ class Ukp {
     /**
      * 테이블 업데이트(1개)
      * 
-     * require  2021.03.30 db_query, db_affected_rows, solution_create_where
-     * @version 2021.03.30
+     * require  2021.05.13 db_query, db_affected_rows, solution_create_where
+     * @version 2021.05.13
      * 
      * @param  string $main_table     테이블명
      * @param  array  $main_row       수정할 row, key가 is 인경우 이스케이프 처리안함
@@ -1679,11 +1679,11 @@ class Ukp {
      * @param  bool   $update_dt_bool 수정일시 사용여부(update_date, update_time 필수)
      * @param  string $main_primary   기본키 컬럼명(공백 아닌경우 중복체크)
      * @param  array  $main_add_where 중복체크 조건문(key에 다른기호 사용 가능)
-     * @param  bool   $add_or_flag    true - 중복체크 or문, false - 중복체크 and문
+     * @param  bool   $or_bool        true - 중복체크 or문, false - 중복체크 and문
      * @param  string $database       사용할 db명
      * @return int                    affected_rows(수정 안된경우 0)
      */
-    function solution_update($main_table, $main_row, $main_where, $update_dt_bool = false, $main_primary = "", $main_add_where = array(), $add_or_flag = true, $database = "default") {
+    function solution_update($main_table, $main_row, $main_where, $update_dt_bool = false, $main_primary = "", $main_add_where = array(), $or_bool = true, $database = "default") {
         $update_set = "";
         $update_where = "";
         $update_add_where = "";
@@ -1730,7 +1730,7 @@ class Ukp {
             foreach ($main_add_where as $k => $v) {
                 if ($i == "0") {
                     $con = "and (";
-                } else if ($add_or_flag) {
+                } else if ($or_bool) {
                     $con = "or";
                 } else {
                     $con = "and";
