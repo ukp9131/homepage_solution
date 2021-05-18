@@ -6,7 +6,7 @@
  * 접두어가 solution인경우 개발환경에 맞게 사용<br>
  * 
  * @author  ukp
- * @version 2021.05.13
+ * @version 2021.05.17
  * @since   PHP 5 >= 5.2.0, PHP 7, PHP 8
  */
 class Ukp {
@@ -1969,21 +1969,28 @@ class Ukp {
     }
 
     /**
-     * phpexcel 객체 생성
+     * phpexcel 객체 생성<br>
+     * phpspreadsheet 사용시 주석해제<br>
+     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2020.12.16 PHPExcel_IOFactory
-     * @version 2020.12.16
+     * require  2021.05.17 PHPExcel_IOFactory
+     * @version 2021.05.17
      * 
      * @param  string   $file     파일명
      * @param  bool     $xls_bool true: xls, false: xlsx
      * @return PHPExcel           phpexcel 객체
      */
     function solution_phpexcel_create($file, $xls_bool = false) {
-        if ($xls_bool) {
-            $reader = PHPExcel_IOFactory::createReader("Excel5");
-            $phpexcel = $reader->load($file);
+        //phpspreadsheet
+        if (!class_exists("PHPExcel")) {
+            //$phpexcel = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
         } else {
-            $phpexcel = PHPExcel_IOFactory::load($file);
+            if ($xls_bool) {
+                $reader = PHPExcel_IOFactory::createReader("Excel5");
+                $phpexcel = $reader->load($file);
+            } else {
+                $phpexcel = PHPExcel_IOFactory::load($file);
+            }
         }
         return $phpexcel;
     }
@@ -2057,10 +2064,12 @@ class Ukp {
 
     /**
      * phpexcel 셀값 설정하기<br>
-     * 값에 따라 셀너비 설정
+     * 값에 따라 셀너비 설정<br>
+     * phpspreadsheet 사용시 주석해제<br>
+     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2020.12.28
-     * @version 2020.12.28
+     * require  2021.05.17
+     * @version 2021.05.17
      * 
      * @param PHPExcel_Worksheet $worksheet   worksheet 객체
      * @param string             $cell        셀이름
@@ -2068,6 +2077,12 @@ class Ukp {
      * @param string             $number_bool true: 숫자, false: 문자열
      */
     function solution_phpexcel_set_value(&$worksheet, $cell, $value, $number_bool = false) {
+        //phpspreadsheet
+        if (!class_exists("PHPExcel")) {
+            //$type_string = \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING;
+        } else {
+            $type_string = PHPExcel_Cell_DataType::TYPE_STRING;
+        }
         $column = preg_replace("/[0-9]/", "", $cell);
         $kor_len = (strlen($value) - mb_strlen($value, "utf-8")) / 2;
         $eng_len = mb_strlen($value, "utf-8") - $kor_len;
@@ -2075,7 +2090,7 @@ class Ukp {
         if ($number_bool) {
             $worksheet->setCellValue($cell, $value);
         } else {
-            $worksheet->setCellValueExplicit($cell, $value, PHPExcel_Cell_DataType::TYPE_STRING);
+            $worksheet->setCellValueExplicit($cell, $value, $type_string);
         }
         //셀너비 설정
         if ($worksheet->getColumnDimension($column)->getWidth() < $total_len) {
@@ -2146,10 +2161,12 @@ class Ukp {
     }
 
     /**
-     * phpexcel 셀정렬 설정
+     * phpexcel 셀정렬 설정<br>
+     * phpspreadsheet 사용시 주석해제<br>
+     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2020.12.16
-     * @version 2020.12.16
+     * require  2021.05.17
+     * @version 2021.05.17
      * 
      * @param PHPExcel_Worksheet $worksheet  worksheet 객체
      * @param string             $cell       셀이름, 범위로도 설정가능
@@ -2157,44 +2174,70 @@ class Ukp {
      * @param string             $horizontal 수평정렬 - left, center, right
      */
     function solution_phpexcel_set_align(&$worksheet, $cell, $vertical, $horizontal) {
+        //phpspreadsheet
+        if (!class_exists("PHPExcel")) {
+            //$vertical_top = \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP;
+            //$vertical_bottom = \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_BOTTOM;
+            //$vertical_center = \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER;
+            //$horizontal_left = \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT;
+            //$horizontal_right = \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT;
+            //$horizontal_center = \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER;
+        } else {
+            $vertical_top = PHPExcel_Style_Alignment::VERTICAL_TOP;
+            $vertical_bottom = PHPExcel_Style_Alignment::VERTICAL_BOTTOM;
+            $vertical_center = PHPExcel_Style_Alignment::VERTICAL_CENTER;
+            $horizontal_left = PHPExcel_Style_Alignment::HORIZONTAL_LEFT;
+            $horizontal_right = PHPExcel_Style_Alignment::HORIZONTAL_RIGHT;
+            $horizontal_center = PHPExcel_Style_Alignment::HORIZONTAL_CENTER;
+        }
         //수직, 수평 정렬
         if ($vertical == "top") {
-            $vertical_code = PHPExcel_Style_Alignment::VERTICAL_TOP;
+            $vertical_code = $vertical_top;
         } else if ($vertical == "bottom") {
-            $vertical_code = PHPExcel_Style_Alignment::VERTICAL_BOTTOM;
+            $vertical_code = $vertical_bottom;
         } else {
-            $vertical_code = PHPExcel_Style_Alignment::VERTICAL_CENTER;
+            $vertical_code = $vertical_center;
         }
         if ($horizontal == "left") {
-            $horizontal_code = PHPExcel_Style_Alignment::HORIZONTAL_LEFT;
+            $horizontal_code = $horizontal_left;
         } else if ($horizontal == "right") {
-            $horizontal_code = PHPExcel_Style_Alignment::HORIZONTAL_RIGHT;
+            $horizontal_code = $horizontal_right;
         } else {
-            $horizontal_code = PHPExcel_Style_Alignment::HORIZONTAL_CENTER;
+            $horizontal_code = $horizontal_center;
         }
         $worksheet->getStyle($cell)->getAlignment()->setHorizontal($horizontal_code)->setVertical($vertical_code);
     }
 
     /**
-     * phpexcel 셀색상 설정
+     * phpexcel 셀색상 설정<br>
+     * phpspreadsheet 사용시 주석해제<br>
+     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2020.12.16
-     * @version 2020.12.16
+     * require  2021.05.17
+     * @version 2021.05.17
      * 
      * @param PHPExcel_Worksheet $worksheet worksheet 객체
      * @param string             $cell      셀이름, 범위로도 설정가능
      * @param string             $color     폰트색상, 컬러코드 대문자, transparent인경우 투명색
      */
     function solution_phpexcel_set_background(&$worksheet, $cell, $color) {
+        //phpspreadsheet
+        if (!class_exists("PHPExcel")) {
+            //$fill_solid = \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID;
+        } else {
+            $fill_solid = PHPExcel_Style_Fill::FILL_SOLID;
+        }
         $color_code = $color == "transparent" ? "00000000" : "FF{$color}";
-        $worksheet->getStyle($cell)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setARGB($color_code);
+        $worksheet->getStyle($cell)->getFill()->setFillType($fill_solid)->getStartColor()->setARGB($color_code);
     }
 
     /**
-     * phpexcel 셀테두리 설정
+     * phpexcel 셀테두리 설정<br>
+     * phpspreadsheet 사용시 주석해제<br>
+     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2020.12.28
-     * @version 2020.12.28
+     * require  2021.05.17
+     * @version 2021.05.17
      * 
      * @param PHPExcel_Worksheet $worksheet worksheet 객체
      * @param string             $cell      셀이름, 범위로도 설정가능
@@ -2211,14 +2254,22 @@ class Ukp {
      *                                      bottom - 아래쪽<br>
      */
     function solution_phpexcel_set_border(&$worksheet, $cell, $color, $style) {
+        //phpspreadsheet
+        if (!class_exists("PHPExcel")) {
+            //$border_none = \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE;
+            //$border_thin = \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN;
+        } else {
+            $border_none = PHPExcel_Style_Border::BORDER_NONE;
+            $border_thin = PHPExcel_Style_Border::BORDER_THIN;
+        }
         //색상
         if ($color == "transparent") {
             $color_arr = array(
-                "style" => PHPExcel_Style_Border::BORDER_NONE
+                "style" => $border_none
             );
         } else {
             $color_arr = array(
-                "style" => PHPExcel_Style_Border::BORDER_THIN,
+                "style" => $border_thin,
                 "color" => array(
                     "rgb" => $color
                 )
@@ -2251,15 +2302,24 @@ class Ukp {
     }
 
     /**
-     * phpexcel 다운로드
+     * phpexcel 다운로드<br>
+     * phpspreadsheet 사용시 주석해제<br>
+     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2020.12.16
-     * @version 2020.12.16
+     * require  2021.05.17
+     * @version 2021.05.17
      * 
      * @param PHPExcel $phpexcel phpexcel 객체
      * @param string   $title    다운로드 파일명
      */
     function solution_phpexcel_download(&$phpexcel, $title) {
+        //phpspreadsheet
+        if (!class_exists("PHPExcel")) {
+            //$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($phpexcel, 'Xlsx');
+        } else {
+            PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
+            $writer = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel2007');
+        }
         // Redirect output to a client’s web browser (Excel2007)
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $title . '.xlsx"');
@@ -2271,23 +2331,28 @@ class Ukp {
         header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
         header('Pragma: public'); // HTTP/1.0
 
-        PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
-        $writer = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel2007');
         $writer->save('php://output');
     }
 
     /**
-     * phpexcel 저장
+     * phpexcel 저장<br>
+     * phpspreadsheet 사용시 주석해제<br>
+     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2020.12.16
-     * @version 2020.12.16
+     * require  2021.05.17
+     * @version 2021.05.17
      * 
      * @param PHPExcel $phpexcel phpexcel 객체
      * @param string   $file     파일저장경로(.xlsx까지 적어야함)
      */
     function solution_phpexcel_save(&$phpexcel, $file) {
-        PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
-        $writer = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel2007');
+        //phpspreadsheet
+        if (!class_exists("PHPExcel")) {
+            //$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($phpexcel, 'Xlsx');
+        } else {
+            PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
+            $writer = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel2007');
+        }
         $writer->save($file);
     }
 
