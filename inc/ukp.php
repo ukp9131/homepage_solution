@@ -886,6 +886,80 @@ class Ukp {
         $src = explode("?", $this->input_server("request_uri"));
         return $src[0];
     }
+    
+    /**
+     * curl 요청<br>
+     * 파일첨부인경우 헤더에 Content-Type: multipart/form-data 추가(띄어쓰기, 대소문자 구분)<br>
+     * 파일첨부인경우 $post_bool은 true, $query는 배열, 파일은 @ + 파일경로
+     * 
+     * require  2020.11.10 common_get_content_type, common_unique_id
+     * @version 2020.11.10
+     *
+     * @param  string $url         요청 url
+     * @param  string $query       요청 파라미터
+     * @param  bool   $post_bool   true - post, false - get
+     * @param  array  $header      요청 header
+     * @param  string $cookie      요청 cookie
+     * @param  bool   $header_bool true - header+body 출력, false - body만 출력
+     * @return array               curl 결과정보<br>
+     *                             ["http_code"] - http 상태코드<br>
+     *                             ["content"] - 응답결과
+     */
+    function common_curl($url, $query = "", $post_bool = false, $header = array(), $cookie = "", $header_bool = false) {
+        $ch = curl_init();
+        if ($post_bool == false && $query != "") {
+            $url .= "?{$query}";
+        }
+        if ($post_bool) {
+            //multipart/form-data 검사
+            $boundary = "";
+            foreach ($header as $k => $v) {
+                if ($v == "Content-Type: multipart/form-data") {
+                    $boundary = "----{$this->common_unique_id()}";
+                    $header[$k] .= "; boundary={$boundary}";
+                    break;
+                }
+            }
+            //multipart/form-data인경우
+            if ($boundary != "" && is_array($query)) {
+                $query_text = "";
+                foreach ($query as $k => $v) {
+                    $query_text .= "--{$boundary}\nContent-Disposition: form-data; name=\"{$k}\"";
+                    //파일확인
+                    if (substr($v, 0, 1) == "@" && file_exists(substr($v, 1))) {
+                        $file_name = basename($v);
+                        $content_type = $this->common_get_content_type($file_name);
+                        $query_text .= "; filename=\"{$file_name}\"\nContent-Type: {$content_type}\n\n";
+                        $query_text .= file_get_contents(substr($v, 1)) . "\n";
+                    } else {
+                        $query_text .= "\n\n{$v}\n";
+                    }
+                }
+                $query_text .= "--{$boundary}--";
+            } else {
+                $query_text = $query;
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $query_text);
+        }
+        if ($header_bool) {
+            curl_setopt($ch, CURLOPT_HEADER, true);
+        } else {
+            curl_setopt($ch, CURLOPT_HEADER, false);
+        }
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+        curl_setopt($ch, CURLOPT_POST, $post_bool);
+        $content = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        return array(
+            "http_code" => $http_code,
+            "content" => $content
+        );
+    }
 
     /**
      * 쿼리 보내기
