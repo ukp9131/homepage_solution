@@ -6,7 +6,7 @@
  * 접두어가 solution인경우 개발환경에 맞게 사용<br>
  * 
  * @author  ukp
- * @version 2021.05.17
+ * @version 2021.05.24
  * @since   PHP 5 >= 5.2.0, PHP 7, PHP 8
  */
 class Ukp {
@@ -2236,8 +2236,8 @@ class Ukp {
      * phpspreadsheet 사용시 주석해제<br>
      * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2021.05.17
-     * @version 2021.05.17
+     * require  2021.05.24
+     * @version 2021.05.24
      * 
      * @param PHPExcel_Worksheet $worksheet worksheet 객체
      * @param string             $cell      셀이름, 범위로도 설정가능
@@ -2258,20 +2258,24 @@ class Ukp {
         if (!class_exists("PHPExcel")) {
             //$border_none = \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE;
             //$border_thin = \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN;
+            $border_style = "borderStyle";
+            $all_borders = "allBorders";
         } else {
             $border_none = PHPExcel_Style_Border::BORDER_NONE;
             $border_thin = PHPExcel_Style_Border::BORDER_THIN;
+            $border_style = "style";
+            $all_borders = "allborders";
         }
         //색상
         if ($color == "transparent") {
             $color_arr = array(
-                "style" => $border_none
+                $border_style => $border_none
             );
         } else {
             $color_arr = array(
-                "style" => $border_thin,
+                $border_style => $border_thin,
                 "color" => array(
-                    "rgb" => $color
+                    "argb" => "FF{$color}"
                 )
             );
         }
@@ -2295,7 +2299,7 @@ class Ukp {
         } else if ($style == "bottom") {
             $border_arr["borders"]["bottom"] = $color_arr;
         } else {
-            $border_arr["borders"]["allborders"] = $color_arr;
+            $border_arr["borders"][$all_borders] = $color_arr;
         }
         //테두리
         $worksheet->getStyle($cell)->applyFromArray($border_arr);
