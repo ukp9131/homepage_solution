@@ -18,8 +18,9 @@
 3. install.php 접속 또는 실행 후 테이블 생성 확인
 4. admin.php 접속후 설정 마무리(id: admin, pw: 1234)
     - 메일전송은 gmail smtp를 사용하며, smtp가 차단되지 않도록 구글계정설정 필요함
-5. php 8 버전을 사용하는 경우 컴포저로 라이브러리 설치, inc/ukp.php 파일에서 phpexcel 함수 주석 제거
-5-1. _email_check.php, _email_find_check.php 추가수정
+5. php 8 버전을 사용하는 경우
+    - 컴포저로 라이브러리 설치, inc/ukp.php 파일에서 phpexcel 함수 주석 제거
+    - _email_check.php, _email_find_check.php 추가수정(추후 개선)
 ## 데모페이지
 * 사용자: <http://ukp9131.cafe24.com/homepage_solution/html>
 * 관리자: <http://ukp9131.cafe24.com/homepage_solution/admin>

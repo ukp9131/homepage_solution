@@ -1,15 +1,23 @@
 <?php
 
 /**
- * require config.php (2021.03.12)<br>
+ * require config.php (2021.06.03)<br>
  * 프로젝트에 맞게 파일명 및 클래스명 변경해서 사용<br>
  * 접두어가 solution인경우 개발환경에 맞게 사용<br>
  * 
  * @author  ukp
- * @version 2021.05.24
+ * @version 2021.06.03
  * @since   PHP 5 >= 5.2.0, PHP 7, PHP 8
  */
 class Ukp {
+
+    /**
+     * 서버 이름
+     * 
+     * @version 2020.06.03
+     * @var     string
+     */
+    private $server_name;
 
     /**
      * 서버 케릭터셋
@@ -378,8 +386,8 @@ class Ukp {
     /**
      * 생성자
      * 
-     * require  2021.03.10 session_start_check
-     * @version 2021.03.10
+     * require  2021.06.03 session_start_check
+     * @version 2021.06.03
      * 
      * @param bool $api_bool     true - json, false - html
      * @param bool $session_bool 세션사용여부
@@ -445,6 +453,8 @@ class Ukp {
         $this->common_asn1_integer = 0x02;
         $this->common_asn1_sequence = 0x10;
         $this->common_asn1_bit_string = 0x03;
+//서버이름 설정
+        $this->server_name = $config["server_name"];
     }
 
     /**
@@ -712,7 +722,7 @@ class Ukp {
         }
         return $return_arr;
     }
-    
+
     /**
      * https여부 확인, 클라우드플레어인경우도 가능
      * 
@@ -732,7 +742,7 @@ class Ukp {
         }
         return false;
     }
-    
+
     /**
      * 페이지네이션 생성
      * 
@@ -768,7 +778,7 @@ class Ukp {
         }
         return $pagination;
     }
-    
+
     /**
      * html encode(&amp; &lt; &gt; &quot;)
      * 
@@ -795,7 +805,7 @@ class Ukp {
     function common_html_decode($text) {
         return htmlspecialchars_decode($text, ENT_COMPAT);
     }
-    
+
     /**
      * 모바일 여부 (http://detectmobilebrowsers.com/)
      * 
@@ -813,7 +823,7 @@ class Ukp {
             return false;
         }
     }
-    
+
     /**
      * 봇 여부
      * 
@@ -835,7 +845,7 @@ class Ukp {
             return true;
         }
     }
-    
+
     /**
      * 해당월의 일요일시작부터 토요일끝까지 날짜범위 반환<br>
      * ex)2019-05 = 2019-04-28 ~ 2019-06-08 - fix<br>
@@ -860,7 +870,7 @@ class Ukp {
         );
         return $temp;
     }
-    
+
     /**
      * 301 redirect
      * 
@@ -873,7 +883,7 @@ class Ukp {
         header("HTTP/1.1 301 Moved Permanently");
         header("Location: {$url}");
     }
-    
+
     /**
      * 쿼리스트링을 제외한 현재 경로
      * 
@@ -886,7 +896,7 @@ class Ukp {
         $src = explode("?", $this->input_server("request_uri"));
         return $src[0];
     }
-    
+
     /**
      * curl 요청<br>
      * 파일첨부인경우 헤더에 Content-Type: multipart/form-data 추가(띄어쓰기, 대소문자 구분)<br>
@@ -2497,6 +2507,7 @@ class Ukp {
         $this->common_log_message("Mailer Error: {$phpmailer->ErrorInfo}", "error");
         return false;
     }
+
     /**
      * 주 테이블 정보<br>
      * 삭제여부는 항상 n<br>
@@ -2513,7 +2524,7 @@ class Ukp {
      */
     function solution_table_info($table, $idx, $where_arr = array(), $database = "default") {
         $where_info = $this->solution_create_where($where_arr);
-        if($table == "admin") {
+        if ($table == "admin") {
             $sql = "
                 select
                     count(*) as `cnt`,
@@ -2527,11 +2538,11 @@ class Ukp {
                     `a`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "admin_log") {
+        } else if ($table == "admin_log") {
             
-        } else if($table == "author") {
+        } else if ($table == "author") {
             
-        } else if($table == "board") {
+        } else if ($table == "board") {
             $sql = "
                 select
                     count(*) as `cnt`,
@@ -2569,7 +2580,7 @@ class Ukp {
                     `b`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "category") {
+        } else if ($table == "category") {
             $sql = "
                 select
                     count(*) as `cnt`,
@@ -2586,7 +2597,7 @@ class Ukp {
                     `c`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "code") {
+        } else if ($table == "code") {
             $sql = "
                 select
                     count(*) as `cnt`,
@@ -2602,7 +2613,7 @@ class Ukp {
                     `c2`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "comic") {
+        } else if ($table == "comic") {
             $sql = "
                 select
                     count(*) as `cnt`,
@@ -2631,11 +2642,11 @@ class Ukp {
                     `c4`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "comment") {
+        } else if ($table == "comment") {
             
-        } else if($table == "connect_log") {
+        } else if ($table == "connect_log") {
             
-        } else if($table == "file") {
+        } else if ($table == "file") {
             $sql = "
                 select
                     count(*) as `cnt`,
@@ -2654,9 +2665,9 @@ class Ukp {
                     `f`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "image") {
+        } else if ($table == "image") {
             
-        } else if($table == "member") {
+        } else if ($table == "member") {
             $sql = "
                 select
                     count(*) as `cnt`,
@@ -2707,13 +2718,13 @@ class Ukp {
      */
     function solution_table_list($table, $where_arr = array(), $limit_arr = array(), $order_by_arr = array(), $delete_flag_bool = true, $database = "default") {
         $where_info = $this->solution_create_where($where_arr);
-        if($table == "admin") {
+        if ($table == "admin") {
             
-        } else if($table == "admin_log") {
+        } else if ($table == "admin_log") {
             
-        } else if($table == "author") {
+        } else if ($table == "author") {
             
-        } else if($table == "board") {
+        } else if ($table == "board") {
             $sql = "
                 select
                     `b`.`board_idx`,
@@ -2744,7 +2755,7 @@ class Ukp {
                 order by
                     `b`.`board_idx` desc
             ";
-        } else if($table == "category") {
+        } else if ($table == "category") {
             $sql = "
                 select
                     `c`.`category_idx`,
@@ -2762,7 +2773,7 @@ class Ukp {
                     `c`.`sort`,
                     `c`.`category_idx`
             ";
-        } else if($table == "code") {
+        } else if ($table == "code") {
             $sql = "
                 select
                     `c2`.`code_idx`,
@@ -2779,7 +2790,7 @@ class Ukp {
                     `c2`.`core_flag` desc,
                     `c2`.`code_idx` desc
             ";
-        } else if($table == "comic") {
+        } else if ($table == "comic") {
             $sql = "
                 select
                     `c4`.`comic_idx`,
@@ -2806,7 +2817,7 @@ class Ukp {
                 order by
                     `c4`.`comic_idx` desc
             ";
-        } else if($table == "comment") {
+        } else if ($table == "comment") {
             $sql = "
                 select
                     `c3`.`comment_idx`,
@@ -2839,9 +2850,9 @@ class Ukp {
                 order by
                     `c3`.`comment_idx` desc
             ";
-        } else if($table == "connect_log") {
+        } else if ($table == "connect_log") {
             
-        } else if($table == "file") {
+        } else if ($table == "file") {
             $sql = "
                 select
                     `f`.`file_idx`,
@@ -2860,9 +2871,9 @@ class Ukp {
                 order by
                     `f`.`file_idx` desc
             ";
-        } else if($table == "image") {
+        } else if ($table == "image") {
             
-        } else if($table == "member") {
+        } else if ($table == "member") {
             $sql = "
                 select
                     `m`.`member_idx`,
@@ -2892,7 +2903,7 @@ class Ukp {
         }
         $binding = $where_info["binding"];
         //삭제여부 사용 안하는경우
-        if(!$delete_flag_bool) {
+        if (!$delete_flag_bool) {
             $sql = str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $sql);
         }
         //order by 있는경우
@@ -2914,7 +2925,7 @@ class Ukp {
         $result = $this->db_result_array($sql, $binding, $database);
         return $result;
     }
-    
+
     /**
      * 주 테이블 cnt쿼리<br>
      * 삭제여부는 항상 n<br>
@@ -2931,13 +2942,13 @@ class Ukp {
      */
     function solution_table_cnt($table, $where_arr = array(), $delete_flag_bool = true, $database = "default") {
         $where_info = $this->solution_create_where($where_arr);
-        if($table == "admin") {
+        if ($table == "admin") {
             
-        } else if($table == "admin_log") {
+        } else if ($table == "admin_log") {
             
-        } else if($table == "author") {
+        } else if ($table == "author") {
             
-        } else if($table == "board") {
+        } else if ($table == "board") {
             $sql = "
                 select
                     count(*) as `cnt`
@@ -2947,9 +2958,9 @@ class Ukp {
                     `b`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "category") {
+        } else if ($table == "category") {
             
-        } else if($table == "code") {
+        } else if ($table == "code") {
             $sql = "
                 select
                     count(*) as `cnt`
@@ -2959,7 +2970,7 @@ class Ukp {
                     `c2`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "comic") {
+        } else if ($table == "comic") {
             $sql = "
                 select
                     count(*) as `cnt`
@@ -2977,7 +2988,7 @@ class Ukp {
                     `c4`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "comment") {
+        } else if ($table == "comment") {
             $sql = "
                 select
                     count(*) as `cnt`
@@ -2987,13 +2998,13 @@ class Ukp {
                     `c3`.`delete_flag` = 'n'
                     {$where_info["where"]}
             ";
-        } else if($table == "connect_log") {
+        } else if ($table == "connect_log") {
             
-        } else if($table == "file") {
+        } else if ($table == "file") {
             
-        } else if($table == "image") {
+        } else if ($table == "image") {
             
-        } else if($table == "member") {
+        } else if ($table == "member") {
             $sql = "
                 select
                     count(*) as `cnt`
@@ -3006,7 +3017,7 @@ class Ukp {
         }
         $binding = $where_info["binding"];
         //삭제여부 사용 안하는경우
-        if(!$delete_flag_bool) {
+        if (!$delete_flag_bool) {
             $sql = str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $sql);
         }
         $result = $this->db_row_array($sql, $binding, $database);
@@ -3033,7 +3044,7 @@ class Ukp {
         }
         return $arr;
     }
-    
+
     /**
      * 세션체크<br>
      * code 리스트<br>
@@ -3041,14 +3052,14 @@ class Ukp {
      */
     function solution_session_check($code, $view_bool = true) {
         $text = $view_bool ? '<script>location.replace("index.php")</script>' : "999";
-        if($code == "1") {
-            if($this->session_get("admin_idx") == "") {
+        if ($code == "1") {
+            if ($this->session_get("admin_idx") == "") {
                 echo $text;
                 exit;
             }
         }
     }
-    
+
     /**
      * 카테고리 계층 리스트
      * 
@@ -3059,7 +3070,7 @@ class Ukp {
         );
         $result = $this->solution_table_list("category", $where_arr);
         $child_arr = array();
-        foreach($result as $temp) {
+        foreach ($result as $temp) {
             $child_arr[$temp["parent_category_idx"]][] = $temp;
         }
         $where_arr = array(
@@ -3067,13 +3078,13 @@ class Ukp {
         );
         $result = $this->solution_table_list("category", $where_arr);
         $parent_arr = array();
-        foreach($result as $k => $v) {
+        foreach ($result as $k => $v) {
             $parent_arr[$k] = $v;
             $parent_arr[$k]["child"] = isset($child_arr[$v["category_idx"]]) ? $child_arr[$v["category_idx"]] : array();
         }
         return $parent_arr;
     }
-    
+
     /**
      * 댓글 계층 리스트
      * 
@@ -3088,7 +3099,7 @@ class Ukp {
         );
         $result = $this->solution_table_list("comment", $where_arr, array(), $order_arr, false);
         $child_arr = array();
-        foreach($result as $temp) {
+        foreach ($result as $temp) {
             $child_arr[$temp["parent_comment_idx"]][] = $temp;
         }
         $where_arr = array(
@@ -3100,13 +3111,13 @@ class Ukp {
         );
         $result = $this->solution_table_list("comment", $where_arr, array(), $order_arr, false);
         $parent_arr = array();
-        foreach($result as $k => $v) {
+        foreach ($result as $k => $v) {
             $parent_arr[$k] = $v;
             $parent_arr[$k]["child"] = isset($child_arr[$v["comment_idx"]]) ? $child_arr[$v["comment_idx"]] : array();
         }
         return $parent_arr;
     }
-    
+
     /**
      * 접속로그
      */
@@ -3116,9 +3127,9 @@ class Ukp {
         $referer = $this->input_server("http_referer");
         $user_agent = $this->input_server("http_user_agent");
         $date = date("Y-m-d");
-        if($this->common_is_bot()) {
+        if ($this->common_is_bot()) {
             $device_flag = "b";
-        } else if($this->common_is_mobile()) {
+        } else if ($this->common_is_mobile()) {
             $device_flag = "m";
         } else {
             $device_flag = "p";
@@ -3136,8 +3147,8 @@ class Ukp {
             "insert_date" => $date
         );
         $connect_log_idx = $this->solution_insert("connect_log", $row_arr, $where_arr, false);
-        
-        if($connect_log_idx > 0) {
+
+        if ($connect_log_idx > 0) {
             return;
         }
         $row_arr = array(
@@ -3145,7 +3156,7 @@ class Ukp {
         );
         $this->solution_update("connect_log", $row_arr, $where_arr);
     }
-    
+
     /**
      * 개인정보 처리방침
      */
@@ -3256,4 +3267,5 @@ class Ukp {
  ① 이 개인정보 처리방침은 {$arr["open_date"]}부터 적용됩니다.
         ";
     }
+
 }

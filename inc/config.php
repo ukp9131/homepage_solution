@@ -6,9 +6,10 @@
  * 추가되는 config 연관배열명 접두어는 common 고정
  * 
  * @author ukp
- * @version 2021.03.12
+ * @version 2021.06.03
  */
 
+$config["server_name"] = "ukp";             //서버 이름
 $config["character_set"] = "utf-8";         //서버 케릭터셋(utf-8, euc-kr)
 $config["time_zone"] = "Asia/Seoul";        //타임존 설정
 $config["error_log_save_bool"] = true;      //에러로그저장여부
