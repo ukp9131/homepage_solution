@@ -84,12 +84,12 @@
 </div>
 <script>
     var ukp__js_content = {
-        delete_comment: function (comment_idx) {
+        delete_code: function (code_idx) {
             if (!confirm("정말로 삭제하시겠습니까?")) {
                 return false;
             }
-            ukp__js_common.ajax("_delete_comment.php", {
-                comment_idx: comment_idx
+            ukp__js_common.ajax("_delete_code.php", {
+                code_idx: code_idx
             }, function (data) {
                 if (data == "1") {
                     location.reload();

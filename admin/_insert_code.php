@@ -18,23 +18,13 @@ $description = $ukp->input_request("description");
 
 //트랜젝션처리 안됨
 //삭제코드조회
-$sql = "
-    select
-        `c2`.`code_idx`
-    from
-        `code` as `c2`
-    where
-        `title` = ? and
-        `delete_flag` = 'y'
-    limit
-        1
-";
-$binding = array(
-    $title
+$where_arr = array(
+    "c2.title" => $title,
+    "delete_flag" => "y"
 );
-$result = $ukp->db_row_array($sql, $binding);
+$result = $ukp->solution_table_list("code", $where_arr, array(), array(), false);
 
-if (isset($result["code_idx"])) {
+if (isset($result[0])) {
     $row_arr = array(
         "title" => $title,
         "content" => $content,
@@ -42,7 +32,7 @@ if (isset($result["code_idx"])) {
         "delete_flag" => "n"
     );
     $where_arr = array(
-        "code_idx" => $result["code_idx"]
+        "code_idx" => $result[0]["code_idx"]
     );
     $ukp->solution_update("code", $row_arr, $where_arr);
     echo "1";
@@ -50,22 +40,12 @@ if (isset($result["code_idx"])) {
 }
 
 //삭제코드조회
-$sql = "
-    select
-        `c2`.`code_idx`
-    from
-        `code` as `c2`
-    where
-        `delete_flag` = 'y'
-    limit
-        1
-";
-$binding = array(
-    $title
+$where_arr = array(
+    "delete_flag" => "y"
 );
-$result = $ukp->db_row_array($sql, $binding);
+$result = $ukp->solution_table_list("code", $where_arr, array(), array(), false);
 
-if (isset($result["code_idx"])) {
+if (isset($result[0])) {
     $row_arr = array(
         "title" => $title,
         "content" => $content,
@@ -75,7 +55,7 @@ if (isset($result["code_idx"])) {
         "insert_time is" => "now()"
     );
     $where_arr = array(
-        "code_idx" => $result["code_idx"]
+        "code_idx" => $result[0]["code_idx"]
     );
     $add_arr = array(
         "title" => $title
