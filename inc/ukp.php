@@ -401,7 +401,7 @@ class Ukp {
         umask(0);
 //config 호출
         $config = array();
-        require dirname(__FILE__) . "/config.php";
+        require dirname(__FILE__) . "/ukp_config.php";
 //일반변수 초기화(접두어 common)
         foreach ($config as $k => $v) {
             if (substr($k, 0, 6) != "common") {

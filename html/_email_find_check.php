@@ -8,10 +8,8 @@
 
 $dir = dirname(__FILE__);
 require_once "{$dir}/../inc/ukp.php";
-require_once "{$dir}/../inc/phpmailer/class.phpmailer.php";
-require_once "{$dir}/../inc/phpmailer/class.smtp.php";
+require_once "{$dir}/../inc/ukp_lib.php";
 $ukp = new Ukp();
-$mailer = new PHPMailer();
 
 $id = $ukp->input_request("id");
 
@@ -33,6 +31,6 @@ $content = "[{$auth_code}]<br><br>위 번호를 인증번호란에 입력해주�
 $ukp->session_set("auth_email", $id);
 $ukp->session_set("auth_code", $auth_code);
 
-$ukp->solution_phpmailer_send($mailer, $code_info["smtp_google_email"], $code_info["smtp_google_password"], $code_info["homepage_name"], $id, $title, $content);
+$ukp->solution_phpmailer_send($ukp_lib["phpmailer"], $code_info["smtp_google_email"], $code_info["smtp_google_password"], $code_info["homepage_name"], $id, $title, $content);
 
 echo "1";
