@@ -6,7 +6,7 @@
  * 접두어가 solution인경우 개발환경에 맞게 사용<br>
  * 
  * @author  ukp
- * @version 2021.06.03
+ * @version 2021.07.30
  * @since   PHP 5 >= 5.2.0, PHP 7, PHP 8
  */
 class Ukp {
@@ -14,7 +14,7 @@ class Ukp {
     /**
      * 서버 이름
      * 
-     * @version 2020.06.03
+     * @version 2021.06.03
      * @var     string
      */
     private $server_name;
@@ -386,8 +386,8 @@ class Ukp {
     /**
      * 생성자
      * 
-     * require  2021.06.03 session_start_check
-     * @version 2021.06.03
+     * require  2021.06.21 session_start_check
+     * @version 2021.06.21
      * 
      * @param bool $api_bool     true - json, false - html
      * @param bool $session_bool 세션사용여부
@@ -640,8 +640,8 @@ class Ukp {
     /**
      * 배열값 반환, stdClass인경우 배열로 변환해서 확인
      * 
-     * require  2020.10.22
-     * @version 2020.10.22
+     * require  2021.07.26
+     * @version 2021.07.26
      *
      * @param  array|object $var        배열 또는 stdClass
      * @param  string       $key        인덱스
@@ -658,8 +658,8 @@ class Ukp {
                 //배열인경우 문자열이면 0번째 배열에 들어간다.
                 return is_array($var[$key]) ? $var[$key] : array($var[$key]);
             } else {
-                //문자열인경우 배열이면 array() 문자열이 된다.
-                return is_array($var[$key]) ? "array()" : $var[$key];
+                //문자열인경우 배열이면 빈 문자열이 된다.
+                return is_array($var[$key]) ? "" : $var[$key];
             }
         } else if ($array_bool) {
             return array();
@@ -902,20 +902,23 @@ class Ukp {
      * 파일첨부인경우 헤더에 Content-Type: multipart/form-data 추가(띄어쓰기, 대소문자 구분)<br>
      * 파일첨부인경우 $post_bool은 true, $query는 배열, 파일은 @ + 파일경로
      * 
-     * require  2020.11.10 common_get_content_type, common_unique_id
-     * @version 2020.11.10
+     * require  2021.07.25 common_get_content_type, common_unique_id, common_array_value
+     * @version 2021.07.25
      *
-     * @param  string $url         요청 url
-     * @param  string $query       요청 파라미터
-     * @param  bool   $post_bool   true - post, false - get
-     * @param  array  $header      요청 header
-     * @param  string $cookie      요청 cookie
-     * @param  bool   $header_bool true - header+body 출력, false - body만 출력
-     * @return array               curl 결과정보<br>
-     *                             ["http_code"] - http 상태코드<br>
-     *                             ["content"] - 응답결과
+     * @param  string $url            요청 url
+     * @param  string $query          요청 파라미터
+     * @param  bool   $post_bool      true - post, false - get
+     * @param  array  $header         요청 header
+     * @param  string $cookie         요청 cookie
+     * @param  bool   $header_bool    true - header+body 출력, false - body만 출력
+     * @param  string $custom_request 커스텀 요청, 공백인경우 설정 안함
+     * @param  int    $timeout        접속 제한시간
+     * @return array                  curl 결과정보<br>
+     *                                ["http_code"] - http 상태코드<br>
+     *                                ["content"] - 응답결과<br>
+     *                                ["redirect_url"] - 리다이렉트url(해당하는경우만)
      */
-    function common_curl($url, $query = "", $post_bool = false, $header = array(), $cookie = "", $header_bool = false) {
+    function common_curl($url, $query = "", $post_bool = false, $header = array(), $cookie = "", $header_bool = false, $custom_request = "", $timeout = 5) {
         $ch = curl_init();
         if ($post_bool == false && $query != "") {
             $url .= "?{$query}";
@@ -956,18 +959,25 @@ class Ukp {
         } else {
             curl_setopt($ch, CURLOPT_HEADER, false);
         }
+        if ($custom_request != "") {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $custom_request);
+        }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_COOKIE, $cookie);
         curl_setopt($ch, CURLOPT_POST, $post_bool);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         $content = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $get_info = curl_getinfo($ch);
+        $http_code = $this->common_array_value($get_info, "http_code");
+        $redirect_url = $this->common_array_value($get_info, "redirect_url");
         curl_close($ch);
         return array(
             "http_code" => $http_code,
-            "content" => $content
+            "content" => $content,
+            "redirect_url" => $redirect_url
         );
     }
 
@@ -1411,32 +1421,6 @@ class Ukp {
     }
 
     /**
-     * cookie<br>
-     * json데이터인경우 array_bool을 true로 설정
-     * 
-     * require  2020.10.21 common_json_decode
-     * @version 2020.10.21
-     *
-     * @param  string       $key        키, 공백인경우 배열전체
-     * @param  bool         $array_bool 반환값형태, true - 배열, false - 문자열
-     * @return string|array
-     */
-    function input_cookie($key = "", $array_bool = false) {
-        if ($key == "") {
-            return isset($_COOKIE) ? $_COOKIE : array();
-        } else if (isset($_COOKIE[$key])) {
-            if ($array_bool) {
-                $arr = $this->common_json_decode($_COOKIE[$key]);
-                return is_array($arr) ? $arr : array($_COOKIE[$key]);
-            } else {
-                return $_COOKIE[$key];
-            }
-        } else {
-            return $array_bool ? array() : "";
-        }
-    }
-
-    /**
      * server
      * 
      * require  2020.09.23
@@ -1497,16 +1481,16 @@ class Ukp {
     /**
      * 파일업로드
      * 
-     * require  2020.09.23 common_unique_id
-     * @version 2020.02.13
+     * require  2021.07.20 common_unique_id
+     * @version 2021.07.20
      *
-     * @param  string $name      파일 태그 name속성
-     * @param  string $src       저장폴더
-     * @param  array  $allow_ext 업로드 허용 확장자(.제외)
-     * @param  bool   $name_flag true인경우 고유파일명 false인경우 업로드한 파일명
+     * @param  string $name             파일 태그 name속성
+     * @param  string $src              저장폴더
+     * @param  array  $allow_ext        업로드 허용 확장자(.제외)
+     * @param  bool   $unique_name_bool true인경우 고유파일명 false인경우 업로드한 파일명
      * @return bool
      */
-    function input_file_upload($name = "file", $src = ".", $allow_ext = array(), $name_flag = false) {
+    function input_file_upload($name = "file", $src = ".", $allow_ext = array(), $unique_name_bool = false) {
         //파일존재확인
         if (!isset($_FILES[$name])) {
             $this->input_upload_info["code"] = "2";
@@ -1521,7 +1505,7 @@ class Ukp {
         $temp_name = explode(".", $_FILES[$name]["name"]);
         $ext = count($temp_name) == "0" ? "" : strtolower($temp_name[count($temp_name) - 1]);
         //flag가 true인경우 고유파일명 false인경우 업로드한 파일명
-        if ($name_flag) {
+        if ($unique_name_bool) {
             $file_name = $this->common_unique_id();
         } else {
             $file_name = str_replace("." . $ext, "", $_FILES[$name]["name"]);
@@ -1675,78 +1659,127 @@ class Ukp {
     }
 
     /**
+     * 쿠키 저장
+     * 
+     * require  2021.07.05
+     * @version 2021.07.05
+     *
+     * @param string $key   키
+     * @param string $value 값
+     */
+    function cookie_set($key, $value) {
+        setcookie($key, $value, 0, "/");
+        $_COOKIE[$key] = $value;
+    }
+
+    /**
+     * 쿠키 값 불러오기
+     * 
+     * require  2021.07.05
+     * @version 2021.07.05
+     *
+     * @param  string       $key 키
+     * @return string|array      값
+     */
+    function cookie_get($key = "") {
+        if ($key == "") {
+            return isset($_COOKIE) ? $_COOKIE : array();
+        }
+        return isset($_COOKIE[$key]) ? $_COOKIE[$key] : "";
+    }
+
+    /**
+     * 쿠키 제거
+     * 
+     * require  2021.07.05 cookie_get
+     * @version 2021.07.05
+     *
+     * @param string $key
+     */
+    function cookie_unset($key = "") {
+        if ($key == "") {
+            $cookie = $this->cookie_get();
+        } else if (isset($_COOKIE[$key])) {
+            $cookie = array(
+                $key => $this->cookie_get("key")
+            );
+        } else {
+            $cookie = array();
+        }
+        foreach ($cookie as $k => $v) {
+            setcookie($k, "", 1, "/");
+            unset($_COOKIE[$k]);
+        }
+    }
+
+    /**
      * 테이블 인서트(1개)<br>
      * 테이블에 insert_date, insert_time 필수
      * 
-     * require  2021.05.13 db_query, db_affected_rows, db_insert_id
-     * @version 2021.05.13
+     * require  2021.07.07 db_query, db_affected_rows, db_insert_id, solution_create_where, solution_create_row
+     * @version 2021.07.07
      * 
      * @param  string $main_table 테이블명
      * @param  array  $main_row   입력할 row, key가 is 인경우 이스케이프 처리안함
-     * @param  array  $main_where 중복 조건문(key에 다른기호 사용 가능)
+     * @param  array  $main_where 중복 조건문(key에 다른기호 사용 가능), solution_create_where 사용
      * @param  bool   $or_bool    true - 중복체크 or문, false - 중복체크 and문
      * @param  string $database   사용할 db명
      * @return int                insert_id(입력 안된경우 0)
      */
     function solution_insert($main_table, $main_row, $main_where = array(), $or_bool = true, $database = "default") {
-        $insert_into = "";
-        $insert_select = "";
-        $insert_where = "";
-        $insert_binding = array();
-        $where = "";
+        //입력일시 확인
+        $insert_date_bool = false;
+        $insert_time_bool = false;
         foreach ($main_row as $k => $v) {
-            $key_arr = explode(" ", $k);
-            $insert_into .= ", `{$key_arr[0]}`";
-            //key가 is 인경우 이스케이프 처리안함
-            if (isset($key_arr[1]) && $key_arr[1] == "is") {
-                $insert_select .= ", {$v}";
-            } else {
-                $insert_select .= ", ?";
-                $insert_binding[] = $v;
+            $key = strtolower($k);
+            if ($key == "insert_date" || $key == "insert_date is") {
+                $insert_date_bool = true;
+            }
+            if ($key == "insert_time" || $key == "insert_time is") {
+                $insert_time_bool = true;
             }
         }
-        $i = 0;
-        foreach ($main_where as $k => $v) {
-            if ($i == "0" || !$or_bool) {
-                $con = "and";
-            } else {
-                $con = "or";
-            }
-            $key_arr = explode(" ", $k);
-            $operator = isset($key_arr[1]) ? $key_arr[1] : "=";
-            $insert_where .= " {$con} `{$key_arr[0]}` {$operator} ?";
-            $insert_binding[] = $v;
-            $i++;
+        if (!$insert_date_bool) {
+            $main_row["insert_date is"] = "now()";
         }
-        //중복체크 있는경우
-        if ($insert_where != "") {
-            $where .= "
+        if (!$insert_time_bool) {
+            $main_row["insert_time is"] = "now()";
+        }
+        $row_info = $this->solution_create_row($main_row);
+        //중복체크인경우
+        if (count($main_where) > 0) {
+            $where_info = $this->solution_create_where($main_where, $or_bool);
+            $sql = "
+                insert into `{$main_table}` (
+                    {$row_info["into"]}
+                )
+                select
+                    {$row_info["values"]}
+                from
+                    dual
                 where not exists (
                     select
                         *
                     from
                         `{$main_table}`
                     where
-                        1 = 1
-                        {$insert_where}
+                        {$where_info["where"]}
                 )
             ";
+            $binding = array_merge($row_info["binding"], $where_info["binding"]);
         }
-        $sql = "
-            insert into `{$main_table}` (
-                `insert_date`,
-                `insert_time`
-                {$insert_into}
-            )
-            select
-                now(),
-                now()
-                {$insert_select}
-            from
-                dual
-            {$where}
-        ";
-        $binding = $insert_binding;
+        //아닌경우
+        else {
+            $sql = "
+                insert into `{$main_table}` (
+                    {$row_info["into"]}
+                ) values (
+                    {$row_info["values"]}
+                )
+            ";
+            $binding = $row_info["binding"];
+        }
+
         $this->db_query($sql, $binding, $database);
         return $this->db_affected_rows() > 0 ? $this->db_insert_id() : 0;
     }
@@ -1754,93 +1787,56 @@ class Ukp {
     /**
      * 테이블 업데이트(1개)
      * 
-     * require  2021.05.13 db_query, db_affected_rows, solution_create_where
-     * @version 2021.05.13
+     * require  2021.07.07 db_query, db_affected_rows, solution_create_where, solution_create_row, common_array_value
+     * @version 2021.07.07
      * 
      * @param  string $main_table     테이블명
      * @param  array  $main_row       수정할 row, key가 is 인경우 이스케이프 처리안함
      * @param  array  $main_where     수정 조건문(중복체크 하는경우 기본키 필수), solution_create_where 사용
      * @param  bool   $update_dt_bool 수정일시 사용여부(update_date, update_time 필수)
      * @param  string $main_primary   기본키 컬럼명(공백 아닌경우 중복체크)
-     * @param  array  $main_add_where 중복체크 조건문(key에 다른기호 사용 가능)
+     * @param  array  $main_add_where 중복체크 조건문(key에 다른기호 사용 가능), solution_create_where 사용
      * @param  bool   $or_bool        true - 중복체크 or문, false - 중복체크 and문
      * @param  string $database       사용할 db명
      * @return int                    affected_rows(수정 안된경우 0)
      */
     function solution_update($main_table, $main_row, $main_where, $update_dt_bool = false, $main_primary = "", $main_add_where = array(), $or_bool = true, $database = "default") {
-        $update_set = "";
-        $update_where = "";
-        $update_add_where = "";
-        $update_binding = array();
-        $update_primary = "";
-        foreach ($main_row as $k => $v) {
-            if ($update_set != "") {
-                $update_set .= ", ";
-            }
-            $key_arr = explode(" ", $k);
-            //key가 is 인경우 이스케이프 처리안함
-            if (isset($key_arr[1]) && $key_arr[1] == "is") {
-                $update_set .= "`{$key_arr[0]}` = {$v}";
-            } else {
-                $update_set .= "`{$key_arr[0]}` = ?";
-                $update_binding[] = $v;
-            }
-        }
-        if ($update_dt_bool) {
-            if ($update_set != "") {
-                $update_set .= ", ";
-            }
-            $update_set .= "`update_date` = now(), `update_time` = now()";
-        }
-        //where
         $where_info = $this->solution_create_where($main_where);
-        $update_where .= $where_info["where"];
-        $update_binding = array_merge($update_binding, $where_info["binding"]);
-        //중복체크용 기본키
-        $update_primary = isset($main_where[$main_primary]) ? $main_where[$main_primary] : "";
+        if ($update_dt_bool) {
+            $main_row["update_date is"] = "now()";
+            $main_row["update_time is"] = "now()";
+        }
+        $row_info = $this->solution_create_row($main_row);
         if ($main_primary != "") {
-            $update_add_where = " and (
-                select
-                    `cnt`
-                from (
+            $primary_key = $this->common_array_value($main_where, $main_primary);
+            $add_where_info = $this->solution_create_where($main_add_where, $or_bool);
+            $where_info["where"] .= " and (
                     select
-                        count(*) as `cnt`
-                    from
-                        `{$main_table}`
-                    where
-                        1 = 1
+                        `cnt`
+                    from (
+                        select
+                            count(*) as `cnt`
+                        from
+                            `{$main_table}`
+                        where
+                            ({$add_where_info["where"]}) and
+                            `{$main_primary}` <> ?
+                    ) as `t1`
+                        
+                ) = 0
             ";
-            $i = 0;
-            foreach ($main_add_where as $k => $v) {
-                if ($i == "0") {
-                    $con = "and (";
-                } else if ($or_bool) {
-                    $con = "or";
-                } else {
-                    $con = "and";
-                }
-                $key_arr = explode(" ", $k);
-                $operator = isset($key_arr[1]) ? $key_arr[1] : "=";
-                $update_add_where .= " {$con} `{$key_arr[0]}` {$operator} ?";
-                $update_binding[] = $v;
-                $i++;
-            }
-            $update_add_where .= ") and `{$main_primary}` <> ?";
-            $update_binding[] = $update_primary;
-            $update_add_where .= ") as `t1`) = 0";
+            $where_info["binding"] = array_merge($where_info["binding"], $add_where_info["binding"], array($primary_key));
         }
 
         $sql = "
             update
                 `{$main_table}`
             set
-                {$update_set}
+                {$row_info["set"]}
             where
-                1 = 1
-                {$update_where}
-                {$update_add_where}
+                {$where_info["where"]}
         ";
-        $binding = $update_binding;
+        $binding = array_merge($row_info["binding"], $where_info["binding"]);
         $this->db_query($sql, $binding, $database);
         return $this->db_affected_rows();
     }
@@ -1849,25 +1845,34 @@ class Ukp {
      * 테이블 삭제(1개)<br>
      * 테이블에 delete_flag 필수
      * 
-     * require  2020.11.16 db_query, db_affected_rows, solution_create_where
-     * @version 2020.11.16
+     * require  2021.07.07 db_query, db_affected_rows, solution_create_where
+     * @version 2021.07.07
      * 
      * @param  string $main_table 테이블명
      * @param  array  $main_where 삭제 조건문, solution_create_where 사용
+     * @param  bool   $force_bool true: 삭제, false: delete_flag 변경
      * @param  string $database   사용할 db명
      * @return int                affected_rows(수정 안된경우 0)
      */
-    function solution_delete($main_table, $main_where, $database = "default") {
+    function solution_delete($main_table, $main_where, $force_bool = false, $database = "default") {
         $where_info = $this->solution_create_where($main_where);
-        $sql = "
-            update
-                `{$main_table}`
-            set
-                `delete_flag` = 'y'
-            where
-                1 = 1
-                {$where_info["where"]}
-        ";
+        if ($force_bool) {
+            $sql = "
+                delete from
+                    `{$main_table}`
+                where
+                    {$where_info["where"]}
+            ";
+        } else {
+            $sql = "
+                update
+                    `{$main_table}`
+                set
+                    `delete_flag` = 'y'
+                where
+                    {$where_info["where"]}
+            ";
+        }
         $binding = $where_info["binding"];
         $this->db_query($sql, $binding, $database);
         return $this->db_affected_rows();
@@ -1875,11 +1880,11 @@ class Ukp {
 
     /**
      * 테이블 다중행 수정 솔루션(모자라는경우 인서트, 남는경우 삭제처리)<br>
-     * update문이 많은경우 속도 느릴 수 있음.<br>
+     * 데이터 많은경우 속도 느릴 수 있음.<br>
      * 테이블에 insert_date, insert_time, delete_flag 필수
      * 
-     * require  2020.11.16 db_result_array, db_query, solution_create_where
-     * @version 2020.11.16
+     * require  2021.07.07 db_result_array, db_query, solution_create_where, solution_create_row
+     * @version 2021.07.07
      * 
      * @param string $main_table   테이블명
      * @param string $main_primary 기본키 컬럼명
@@ -1898,53 +1903,27 @@ class Ukp {
             from
                 `{$main_table}`
             where
-                1 = 1
                 {$where_info["where"]}
         ";
         $binding = $where_info["binding"];
         $result = $this->db_result_array($sql, $binding, $database);
 
-        //업데이트 리스트 - ["set"], ["binding"]
-        $update_list = array();
-        $update_set = "";
-        //인서트
-        $insert_into = "";
-        $insert_values = "";
-        $insert_binding = array();
+        //업데이트 리스트(기본키가 키값)
+        $update_arr = array();
+        //인서트 리스트
+        $insert_arr = array();
         //처리
         foreach ($main_list as $k => $v) {
             //기존리스트 있는경우
             if (isset($result[$k][$main_primary])) {
-                $update_set = "";
-                foreach ($v as $kk => $vv) {
-                    $update_set .= ", `{$kk}` = ?";
-                    $update_list[$k]["binding"][] = $vv;
-                }
-                $update_list[$k]["binding"][] = $result[$k][$main_primary];
+                $primary_key = $result[$k][$main_primary];
+                $update_arr[$primary_key] = $v;
             }
             //없는경우
             else {
-                $insert_into = "";
-                if ($insert_values != "") {
-                    $insert_values .= ", ";
-                }
-                $insert_values .= "(now(), now()";
-                foreach ($v as $kk => $vv) {
-                    $insert_into .= ", `{$kk}`";
-                    $insert_values .= ", ?";
-                    $insert_binding[] = $vv;
-                }
-                foreach ($main_where as $kk => $vv) {
-                    if (!isset($v[$kk])) {
-                        $insert_into .= ", `{$kk}`";
-                        $insert_values .= ", ?";
-                        $insert_binding[] = $vv;
-                    }
-                }
-                $insert_values .= ")";
+                $insert_arr[] = $v;
             }
         }
-
         //기존리스트 삭제
         $sql = "
             update
@@ -1952,66 +1931,78 @@ class Ukp {
             set
                 `delete_flag` = 'y'
             where
-                1 = 1
                 {$where_info["where"]}
         ";
         $binding = $where_info["binding"];
         $this->db_query($sql, $binding, $database);
 
         //업데이트
-        foreach ($update_list as $temp) {
+        foreach ($update_arr as $k => $v) {
+            $row_info = $this->solution_create_row($v);
             $sql = "
                 update
                     `{$main_table}`
                 set
                     `insert_date` = now(),
                     `insert_time` = now(),
-                    `delete_flag` = 'n'
-                    {$update_set}
+                    `delete_flag` = 'n',
+                    {$row_info["set"]}
                 where
                     `{$main_primary}` = ?
             ";
-            $binding = $temp["binding"];
+            $binding = array_merge($row_info["binding"], array($k));
             $this->db_query($sql, $binding, $database);
         }
-
         //인서트
-        if ($insert_values == "") {
-            return;
+        foreach ($insert_arr as $temp) {
+            foreach ($main_where as $k => $v) {
+                if (!isset($temp[$k])) {
+                    $temp[$k] = $v;
+                }
+            }
+            $row_info = $this->solution_create_row($temp);
+            $sql = "
+                insert into `{$main_table}` (
+                    `insert_date`,
+                    `insert_time`,
+                    {$row_info["into"]}
+                ) values (
+                    now(),
+                    now(),
+                    {$row_info["values"]}
+                )
+            ";
+            $binding = $row_info["binding"];
+            $this->db_query($sql, $binding, $database);
         }
-        $sql = "
-            insert into `{$main_table}` (
-                `insert_date`,
-                `insert_time`
-                {$insert_into}
-            )
-            values
-                {$insert_values}
-        ";
-        $binding = $insert_binding;
-        $this->db_query($sql, $binding, $database);
     }
 
     /**
-     * where문 생성
-     * in 쿼리인경우 값이 배열
-     * null쿼리인경우 키가 is, 값이 null 또는 not null
+     * where문 생성<br>
+     * in 쿼리인경우 값이 배열<br>
+     * null쿼리인경우 키가 is, 값이 null 또는 not null<br>
      * 일반쿼리인경우 키에 연산자, 연산자 없는경우 =
      * 
-     * require  2021.03.25
-     * @version 2021.03.25
+     * require  2021.07.07
+     * @version 2021.07.07
      * 
      * @param  array $where_arr where 배열(키값에 연산자 사용 가능)
+     * @param  bool  $or_bool  true: or, false: and
      * @return array            where 정보<br>
      *                          ["where"] - 추가 where문<br>
      *                          ["binding"] - 추가 binding문
      */
-    function solution_create_where($where_arr = array()) {
+    function solution_create_where($where_arr = array(), $or_bool = false) {
         $return_arr = array(
             "where" => "",
             "binding" => array()
         );
+        $first_bool = true;
+        $and_text = $or_bool ? " or " : " and ";
         foreach ($where_arr as $k => $v) {
+            if (!$first_bool) {
+                $return_arr["where"] .= $and_text;
+            }
             $key_arr = explode(" ", str_replace("`", "", $k));
             $field_arr = explode(".", $key_arr[0]);
             $field = "`{$field_arr[0]}`" . (isset($field_arr[1]) ? ".`{$field_arr[1]}`" : "");
@@ -2025,7 +2016,7 @@ class Ukp {
                     //in
                     $operator = "in";
                 }
-                $return_arr["where"] .= " and {$field} {$operator}(";
+                $return_arr["where"] .= "{$field} {$operator}(";
                 foreach ($v as $kk => $vv) {
                     if ($kk != "0") {
                         $return_arr["where"] .= ", ";
@@ -2036,29 +2027,74 @@ class Ukp {
                 $return_arr["where"] .= ")";
             }
             //escape, null쿼리
-            else if ($operator == "is") {
+            else if (strtolower($operator) == "is") {
                 //escape인경우
                 if (!in_array(strtolower($v), array("null", "not null"))) {
                     $operator = "=";
                 }
-                $return_arr["where"] .= " and {$field} {$operator} {$v}";
+                $return_arr["where"] .= "{$field} {$operator} {$v}";
             }
             //일반쿼리
             else {
-                $return_arr["where"] .= " and {$field} {$operator} ?";
+                $return_arr["where"] .= "{$field} {$operator} ?";
                 $return_arr["binding"][] = $v;
             }
+            $first_bool = false;
+        }
+        return $return_arr;
+    }
+
+    /**
+     * set, into, values 컬럼 생성<br>
+     * escape인경우 키가 is
+     * 
+     * require  2021.07.07 common_array_value
+     * @version 2021.07.07
+     * 
+     * @param  array $row_arr   row 배열(escape인경우 키가 is)
+     * @return array            row 정보<br>
+     *                          ["set"] - 추가 set문<br>
+     *                          ["into"] - 추가 into문<br>
+     *                          ["values"] - 추가 values문<br>
+     *                          ["binding"] - 추가 binding문
+     */
+    function solution_create_row($row_arr = array()) {
+        $return_arr = array(
+            "set" => "",
+            "into" => "",
+            "values" => "",
+            "binding" => array()
+        );
+        $first_bool = true;
+        foreach ($row_arr as $k => $v) {
+            if (!$first_bool) {
+                $return_arr["set"] .= ", ";
+                $return_arr["into"] .= ", ";
+                $return_arr["values"] .= ", ";
+            }
+            $key_arr = explode(" ", str_replace("`", "", $k));
+            $field_arr = explode(".", $key_arr[0]);
+            $field = "`{$field_arr[0]}`" . (isset($field_arr[1]) ? ".`{$field_arr[1]}`" : "");
+            if (strtolower($this->common_array_value($key_arr, 1)) == "is") {
+                $return_arr["set"] .= "{$field} = {$v}";
+                $return_arr["into"] .= $field;
+                $return_arr["values"] .= $v;
+            } else {
+                $return_arr["set"] .= "{$field} = ?";
+                $return_arr["into"] .= $field;
+                $return_arr["values"] .= "?";
+                $return_arr["binding"][] = $v;
+            }
+            $first_bool = false;
         }
         return $return_arr;
     }
 
     /**
      * phpexcel 객체 생성<br>
-     * phpspreadsheet 사용시 주석해제<br>
-     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2021.05.17 PHPExcel_IOFactory
-     * @version 2021.05.17
+     * require  2021.06.17 PHPExcel_IOFactory
+     * @version 2021.06.17
      * 
      * @param  string   $file     파일명
      * @param  bool     $xls_bool true: xls, false: xlsx
@@ -2067,7 +2103,7 @@ class Ukp {
     function solution_phpexcel_create($file, $xls_bool = false) {
         //phpspreadsheet
         if (!class_exists("PHPExcel")) {
-            //$phpexcel = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+            eval('$phpexcel = \\PhpOffice\\PhpSpreadsheet\\IOFactory::load($file);');
         } else {
             if ($xls_bool) {
                 $reader = PHPExcel_IOFactory::createReader("Excel5");
@@ -2149,11 +2185,9 @@ class Ukp {
     /**
      * phpexcel 셀값 설정하기<br>
      * 값에 따라 셀너비 설정<br>
-     * phpspreadsheet 사용시 주석해제<br>
-     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2021.05.17
-     * @version 2021.05.17
+     * require  2021.06.17
+     * @version 2021.06.17
      * 
      * @param PHPExcel_Worksheet $worksheet   worksheet 객체
      * @param string             $cell        셀이름
@@ -2163,7 +2197,7 @@ class Ukp {
     function solution_phpexcel_set_value(&$worksheet, $cell, $value, $number_bool = false) {
         //phpspreadsheet
         if (!class_exists("PHPExcel")) {
-            //$type_string = \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING;
+            eval('$type_string = \\PhpOffice\\PhpSpreadsheet\\Cell\\DataType::TYPE_STRING;');
         } else {
             $type_string = PHPExcel_Cell_DataType::TYPE_STRING;
         }
@@ -2246,11 +2280,9 @@ class Ukp {
 
     /**
      * phpexcel 셀정렬 설정<br>
-     * phpspreadsheet 사용시 주석해제<br>
-     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2021.05.17
-     * @version 2021.05.17
+     * require  2021.06.17
+     * @version 2021.06.17
      * 
      * @param PHPExcel_Worksheet $worksheet  worksheet 객체
      * @param string             $cell       셀이름, 범위로도 설정가능
@@ -2260,12 +2292,12 @@ class Ukp {
     function solution_phpexcel_set_align(&$worksheet, $cell, $vertical, $horizontal) {
         //phpspreadsheet
         if (!class_exists("PHPExcel")) {
-            //$vertical_top = \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP;
-            //$vertical_bottom = \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_BOTTOM;
-            //$vertical_center = \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER;
-            //$horizontal_left = \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT;
-            //$horizontal_right = \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT;
-            //$horizontal_center = \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER;
+            eval('$vertical_top = \\PhpOffice\\PhpSpreadsheet\\Style\\Alignment::VERTICAL_TOP;');
+            eval('$vertical_bottom = \\PhpOffice\\PhpSpreadsheet\\Style\\Alignment::VERTICAL_BOTTOM;');
+            eval('$vertical_center = \\PhpOffice\\PhpSpreadsheet\\Style\\Alignment::VERTICAL_CENTER;');
+            eval('$horizontal_left = \\PhpOffice\\PhpSpreadsheet\\Style\\Alignment::HORIZONTAL_LEFT;');
+            eval('$horizontal_right = \\PhpOffice\\PhpSpreadsheet\\Style\\Alignment::HORIZONTAL_RIGHT;');
+            eval('$horizontal_center = \\PhpOffice\\PhpSpreadsheet\\Style\\Alignment::HORIZONTAL_CENTER;');
         } else {
             $vertical_top = PHPExcel_Style_Alignment::VERTICAL_TOP;
             $vertical_bottom = PHPExcel_Style_Alignment::VERTICAL_BOTTOM;
@@ -2294,11 +2326,9 @@ class Ukp {
 
     /**
      * phpexcel 셀색상 설정<br>
-     * phpspreadsheet 사용시 주석해제<br>
-     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2021.05.17
-     * @version 2021.05.17
+     * require  2021.06.17
+     * @version 2021.06.17
      * 
      * @param PHPExcel_Worksheet $worksheet worksheet 객체
      * @param string             $cell      셀이름, 범위로도 설정가능
@@ -2307,7 +2337,7 @@ class Ukp {
     function solution_phpexcel_set_background(&$worksheet, $cell, $color) {
         //phpspreadsheet
         if (!class_exists("PHPExcel")) {
-            //$fill_solid = \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID;
+            eval('$fill_solid = \\PhpOffice\\PhpSpreadsheet\\Style\\Fill::FILL_SOLID;');
         } else {
             $fill_solid = PHPExcel_Style_Fill::FILL_SOLID;
         }
@@ -2317,11 +2347,9 @@ class Ukp {
 
     /**
      * phpexcel 셀테두리 설정<br>
-     * phpspreadsheet 사용시 주석해제<br>
-     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2021.05.24
-     * @version 2021.05.24
+     * require  2021.06.17
+     * @version 2021.06.17
      * 
      * @param PHPExcel_Worksheet $worksheet worksheet 객체
      * @param string             $cell      셀이름, 범위로도 설정가능
@@ -2340,8 +2368,8 @@ class Ukp {
     function solution_phpexcel_set_border(&$worksheet, $cell, $color, $style) {
         //phpspreadsheet
         if (!class_exists("PHPExcel")) {
-            //$border_none = \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE;
-            //$border_thin = \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN;
+            eval('$border_none = \\PhpOffice\\PhpSpreadsheet\\Style\\Border::BORDER_NONE;');
+            eval('$border_thin = \\PhpOffice\\PhpSpreadsheet\\Style\\Border::BORDER_THIN;');
             $border_style = "borderStyle";
             $all_borders = "allBorders";
         } else {
@@ -2391,11 +2419,9 @@ class Ukp {
 
     /**
      * phpexcel 다운로드<br>
-     * phpspreadsheet 사용시 주석해제<br>
-     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2021.05.17
-     * @version 2021.05.17
+     * require  2021.06.17
+     * @version 2021.06.17
      * 
      * @param PHPExcel $phpexcel phpexcel 객체
      * @param string   $title    다운로드 파일명
@@ -2403,7 +2429,7 @@ class Ukp {
     function solution_phpexcel_download(&$phpexcel, $title) {
         //phpspreadsheet
         if (!class_exists("PHPExcel")) {
-            //$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($phpexcel, 'Xlsx');
+            eval('$writer = \\PhpOffice\\PhpSpreadsheet\\IOFactory::createWriter($phpexcel, "Xlsx");');
         } else {
             PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
             $writer = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel2007');
@@ -2424,11 +2450,9 @@ class Ukp {
 
     /**
      * phpexcel 저장<br>
-     * phpspreadsheet 사용시 주석해제<br>
-     * php 5.2에선 주석해제 절대불가(네임스페이스 문법에러) 
      * 
-     * require  2021.05.17
-     * @version 2021.05.17
+     * require  2021.06.17
+     * @version 2021.06.17
      * 
      * @param PHPExcel $phpexcel phpexcel 객체
      * @param string   $file     파일저장경로(.xlsx까지 적어야함)
@@ -2436,7 +2460,7 @@ class Ukp {
     function solution_phpexcel_save(&$phpexcel, $file) {
         //phpspreadsheet
         if (!class_exists("PHPExcel")) {
-            //$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($phpexcel, 'Xlsx');
+            eval('$writer = \\PhpOffice\\PhpSpreadsheet\\IOFactory::createWriter($phpexcel, "Xlsx");');
         } else {
             PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
             $writer = PHPExcel_IOFactory::createWriter($phpexcel, 'Excel2007');
@@ -2447,20 +2471,22 @@ class Ukp {
     /**
      * phpmailer 구글 smtp 메일전송
      * 
-     * require  2021.01.07
-     * @version 2021.01.07
+     * require  2022.07.16
+     * @version 2022.07.16
      * 
-     * @param  PHPMailer $phpmailer phpmailer 객체
-     * @param  string    $gmail_id  gmail 아이디
-     * @param  string    $gmail_pw  gmail 비밀번호
-     * @param  string    $from_name 보내는사람 이름
-     * @param  string    $to_email  받는사람 이메일
-     * @param  string    $title     제목
-     * @param  string    $content   내용
-     * @param  array     $file      첨부파일 리스트 배열
-     * @return bool                 true: 성공, false: 실패
+     * @param  PHPMailer    $phpmailer phpmailer 객체
+     * @param  string       $gmail_id  gmail 아이디
+     * @param  string       $gmail_pw  gmail 비밀번호
+     * @param  string       $from_name 보내는사람 이름
+     * @param  string|array $to_email  받는사람 이메일
+     * @param  string       $title     제목
+     * @param  string       $content   내용
+     * @param  array        $file      첨부파일 리스트 배열
+     * @param  string|array $cc        참조
+     * @param  string|array $bcc       숨은참조
+     * @return bool                    true: 성공, false: 실패
      */
-    function solution_phpmailer_send($phpmailer, $gmail_id, $gmail_pw, $from_name, $to_email, $title, $content, $file = array()) {
+    function solution_phpmailer_send($phpmailer, $gmail_id, $gmail_pw, $from_name, $to_email, $title, $content, $file = array(), $cc = "", $bcc = "") {
         //Tell PHPMailer to use SMTP
         $phpmailer->isSMTP();
         $phpmailer->CharSet = "utf-8";
@@ -2487,7 +2513,27 @@ class Ukp {
 //Set an alternative reply-to address
 //$phpmailer->addReplyTo($gmail_id, $from_name);
 //Set who the message is to be sent to
-        $phpmailer->addAddress($to_email, '');
+        if (is_array($to_email)) {
+            foreach ($to_email as $temp) {
+                $phpmailer->addAddress($temp, '');
+            }
+        } else {
+            $phpmailer->addAddress($to_email, '');
+        }
+        if (is_array($cc)) {
+            foreach ($cc as $temp) {
+                $phpmailer->addCC($temp);
+            }
+        } else if ($cc != "") {
+            $phpmailer->addCC($cc);
+        }
+        if (is_array($bcc)) {
+            foreach ($bcc as $temp) {
+                $phpmailer->addBCC($temp);
+            }
+        } else if ($bcc != "") {
+            $phpmailer->addBCC($bcc);
+        }
 //Set the subject line
         $phpmailer->Subject = $title;
 //Read an HTML message body from an external file, convert referenced images to embedded,
@@ -2509,519 +2555,37 @@ class Ukp {
     }
 
     /**
-     * 주 테이블 정보<br>
-     * 삭제여부는 항상 n<br>
-     * 테이블별로 임의로 추가해서 사용
+     * phpwebdriver 데이터 가져오기
      * 
-     * require  2020.11.16 solution_create_where, db_row_array
-     * @version 2020.11.11
+     * require  2021.07.09
+     * @version 2021.07.09
      * 
-     * @param  string $table     테이블명
-     * @param  int    $idx       기본키(count(*)를 위해 필수)
-     * @param  string $where_arr where문
-     * @param  string $database  사용 데이터베이스
-     * @return array             테이블 정보
+     * @param  string $url      전체 url
+     * @param  string $selector css 셀렉터
+     * @param  int    $port     크롬드라이버 port
+     * @return string           결과문자열
      */
-    function solution_table_info($table, $idx, $where_arr = array(), $database = "default") {
-        $where_info = $this->solution_create_where($where_arr);
-        if ($table == "admin") {
-            $sql = "
-                select
-                    count(*) as `cnt`,
-                    `a`.`admin_idx`,
-                    `a`.`id`,
-                    `a`.`pw`
-                from
-                    `admin` as `a`
-                where
-                    `a`.`admin_idx` = ? and
-                    `a`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "admin_log") {
-            
-        } else if ($table == "author") {
-            
-        } else if ($table == "board") {
-            $sql = "
-                select
-                    count(*) as `cnt`,
-                    `b`.`board_idx`,
-                    `b`.`category_idx`,
-                    `b`.`member_idx`,
-                    `b`.`title`,
-                    `b`.`content`,
-                    case
-                        when `b`.`admin_flag` = 'y' then '관리자'
-                        when `b`.`member_idx` is null then `b`.`name`
-                        else `m`.`nickname`
-                    end as `name`,
-                    `b`.`view_cnt`,
-                    `b`.`private_flag`,
-                    `b`.`top_flag`,
-                    `b`.`admin_flag`,
-                    `b`.`insert_date`,
-                    `b`.`insert_time`,
-                    `b`.`update_date`,
-                    `b`.`update_time`,
-                    `c`.`title` as `category_title`
-                from
-                    `board` as `b`
-                left join
-                    `category` as `c`
-                on
-                    `b`.`category_idx` = `c`.`category_idx`
-                left join
-                    `member` as `m`
-                on
-                    `b`.`member_idx` = `m`.`member_idx`
-                where
-                    `b`.`board_idx` = ? and
-                    `b`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "category") {
-            $sql = "
-                select
-                    count(*) as `cnt`,
-                    `c`.`category_idx`,
-                    `c`.`parent_category_idx`,
-                    `c`.`file_name`,
-                    `c`.`manager_file_name`,
-                    `c`.`title`,
-                    `c`.`sort`
-                from
-                    `category` as `c`
-                where
-                    `c`.`category_idx` = ? and
-                    `c`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "code") {
-            $sql = "
-                select
-                    count(*) as `cnt`,
-                    `c2`.`code_idx`,
-                    `c2`.`title`,
-                    `c2`.`content`,
-                    `c2`.`description`,
-                    `c2`.`core_flag`
-                from
-                    `code` as `c2`
-                where
-                    `c2`.`code_idx` = ? and
-                    `c2`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "comic") {
-            $sql = "
-                select
-                    count(*) as `cnt`,
-                    `c4`.`comic_idx`,
-                    `c4`.`author_idx`,
-                    `c4`.`title`,
-                    `c4`.`page`,
-                    `c4`.`view_cnt`,
-                    `c4`.`download_url`,
-                    `c4`.`insert_date`,
-                    `c4`.`insert_time`,
-                    `a2`.`name` as `author`,
-                    `c`.`title` as `category_title`
-                from
-                    `comic` as `c4`
-                left join
-                    `author` as `a2`
-                on
-                    `c4`.`author_idx` = `a2`.`author_idx`
-                left join
-                    `category` as `c`
-                on
-                    `c4`.`category_idx` = `c`.`category_idx`
-                where
-                    `c4`.`comic_idx` = ? and
-                    `c4`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "comment") {
-            
-        } else if ($table == "connect_log") {
-            
-        } else if ($table == "file") {
-            $sql = "
-                select
-                    count(*) as `cnt`,
-                    `f`.`file_idx`,
-                    `f`.`board_idx`,
-                    `f`.`origin_name`,
-                    `f`.`server_path`,
-                    `f`.`web_path`,
-                    `f`.`size`,
-                    `f`.`insert_date`,
-                    `f`.`insert_time`
-                from
-                    `file` as `f`
-                where
-                    `f`.`file_idx` = ? and
-                    `f`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "image") {
-            
-        } else if ($table == "member") {
-            $sql = "
-                select
-                    count(*) as `cnt`,
-                    `m`.`member_idx`,
-                    `m`.`id`,
-                    `m`.`nickname`,
-                    `m`.`name`,
-                    `m`.`birthday`,
-                    `m`.`gender`,
-                    `m`.`last_login_date`,
-                    `m`.`last_login_time`,
-                    `m`.`insert_date`,
-                    `m`.`insert_time`,
-                    `i`.`server_path`,
-                    `i`.`web_path`
-                from
-                    `member` as `m`
-                left join
-                    `image` as `i`
-                on
-                    `m`.`image_idx` = `i`.`image_idx`
-                where
-                    `m`.`member_idx` = ? and
-                    `m`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
+    function solution_phpwebdriver_get_content($url, $selector, $port = 4444) {
+        try {
+            $server_url = "http://localhost:{$port}";
+            eval('$option = new Facebook\\WebDriver\\Chrome\\ChromeOptions();');
+            $option->addArguments(array(
+                "--headless",
+                "--no-sandbox",
+                "--disable-dev-shm-usage"
+            ));
+            eval('$capability = Facebook\\WebDriver\\Remote\\DesiredCapabilities::chrome();');
+            eval('$capability->setCapability(Facebook\\WebDriver\\Chrome\\ChromeOptions::CAPABILITY, $option);');
+            eval('$driver = Facebook\\WebDriver\\Remote\\RemoteWebDriver::create($server_url, $capability, 10000, 10000);');
+            $driver->get($url);
+            eval('$content = $driver->findElement(Facebook\\WebDriver\\WebDriverBy::cssSelector($selector))->getText();');
+        } catch (Exception $e) {
+            $content = "";
         }
-        $binding = array_merge(array($idx), $where_info["binding"]);
-        $result = $this->db_row_array($sql, $binding, $database);
-        return $result;
-    }
-
-    /**
-     * 주 테이블 리스트<br>
-     * 삭제여부는 항상 n<br>
-     * 테이블별로 임의로 추가해서 사용<br>
-     * 
-     * require  2021.05.07 solution_create_where, db_result_array
-     * @version 2021.05.07
-     * 
-     * @param  string $table            테이블명
-     * @param  array  $where_arr        where문
-     * @param  array  $limit_arr        ["start"] - 시작, ["limit"] - 갯수
-     * @param  array  $order_by_arr     정렬 배열(기본정렬인경우 빈배열)
-     * @param  bool   $delete_flag_bool true - 삭제여부 사용, false - 삭제여부 사용안함
-     * @param  string $database         사용 데이터베이스
-     * @return array                    테이블 리스트
-     */
-    function solution_table_list($table, $where_arr = array(), $limit_arr = array(), $order_by_arr = array(), $delete_flag_bool = true, $database = "default") {
-        $where_info = $this->solution_create_where($where_arr);
-        if ($table == "admin") {
-            
-        } else if ($table == "admin_log") {
-            
-        } else if ($table == "author") {
-            
-        } else if ($table == "board") {
-            $sql = "
-                select
-                    `b`.`board_idx`,
-                    `b`.`member_idx`,
-                    `b`.`title`,
-                    case
-                        when `b`.`admin_flag` = 'y' then '관리자'
-                        when `b`.`member_idx` is null then `b`.`name`
-                        else `m`.`nickname`
-                    end as `name`,
-                    `b`.`view_cnt`,
-                    `b`.`private_flag`,
-                    `b`.`top_flag`,
-                    `b`.`admin_flag`,
-                    `b`.`insert_date`,
-                    `b`.`insert_time`,
-                    `b`.`update_date`,
-                    `b`.`update_time`
-                from
-                    `board` as `b`
-                left join
-                    `member` as `m`
-                on
-                    `b`.`member_idx` = `m`.`member_idx`
-                where
-                    `b`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-                order by
-                    `b`.`board_idx` desc
-            ";
-        } else if ($table == "category") {
-            $sql = "
-                select
-                    `c`.`category_idx`,
-                    `c`.`parent_category_idx`,
-                    `c`.`file_name`,
-                    `c`.`manager_file_name`,
-                    `c`.`title`,
-                    `c`.`sort`
-                from
-                    `category` as `c`
-                where
-                    `c`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-                order by
-                    `c`.`sort`,
-                    `c`.`category_idx`
-            ";
-        } else if ($table == "code") {
-            $sql = "
-                select
-                    `c2`.`code_idx`,
-                    `c2`.`title`,
-                    `c2`.`content`,
-                    `c2`.`description`,
-                    `c2`.`core_flag`
-                from
-                    `code` as `c2`
-                where
-                    `c2`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-                order by
-                    `c2`.`core_flag` desc,
-                    `c2`.`code_idx` desc
-            ";
-        } else if ($table == "comic") {
-            $sql = "
-                select
-                    `c4`.`comic_idx`,
-                    `c4`.`author_idx`,
-                    `c4`.`title`,
-                    `c4`.`page`,
-                    `c4`.`view_cnt`,
-                    `c4`.`insert_date`,
-                    `c4`.`insert_time`,
-                    `a2`.`name` as `author`
-                from
-                    `comic` as `c4`
-                left join
-                    `author` as `a2`
-                on
-                    `c4`.`author_idx` = `a2`.`author_idx`
-                left join
-                    `category` as `c`
-                on
-                    `c4`.`category_idx` = `c`.`category_idx`
-                where
-                    `c4`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-                order by
-                    `c4`.`comic_idx` desc
-            ";
-        } else if ($table == "comment") {
-            $sql = "
-                select
-                    `c3`.`comment_idx`,
-                    `c3`.`parent_comment_idx`,
-                    `c3`.`board_idx`,
-                    `c3`.`member_idx`,
-                    `c3`.`content`,
-                    `c3`.`pw`,
-                    case
-                        when `c3`.`admin_flag` = 'y' then '관리자'
-                        when `c3`.`member_idx` is null then `c3`.`name`
-                        else `m`.`nickname`
-                    end as `name`,
-                    `c3`.`private_flag`,
-                    `c3`.`admin_flag`,
-                    `c3`.`insert_date`,
-                    `c3`.`insert_time`,
-                    `c3`.`update_date`,
-                    `c3`.`update_time`,
-                    `c3`.`delete_flag`
-                from
-                    `comment` as `c3`
-                left join
-                    `member` as `m`
-                on
-                    `c3`.`member_idx` = `m`.`member_idx`
-                where
-                    `c3`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-                order by
-                    `c3`.`comment_idx` desc
-            ";
-        } else if ($table == "connect_log") {
-            
-        } else if ($table == "file") {
-            $sql = "
-                select
-                    `f`.`file_idx`,
-                    `f`.`board_idx`,
-                    `f`.`origin_name`,
-                    `f`.`server_path`,
-                    `f`.`web_path`,
-                    `f`.`size`,
-                    `f`.`insert_date`,
-                    `f`.`insert_time`
-                from
-                    `file` as `f`
-                where
-                    `f`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-                order by
-                    `f`.`file_idx` desc
-            ";
-        } else if ($table == "image") {
-            
-        } else if ($table == "member") {
-            $sql = "
-                select
-                    `m`.`member_idx`,
-                    `m`.`id`,
-                    `m`.`nickname`,
-                    `m`.`name`,
-                    `m`.`birthday`,
-                    `m`.`gender`,
-                    `m`.`last_login_date`,
-                    `m`.`last_login_time`,
-                    `m`.`insert_date`,
-                    `m`.`insert_time`,
-                    `i`.`server_path`,
-                    `i`.`web_path`
-                from
-                    `member` as `m`
-                left join
-                    `image` as `i`
-                on
-                    `m`.`image_idx` = `i`.`image_idx`
-                where
-                    `m`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-                order by
-                    `m`.`member_idx` desc
-            ";
+        if (isset($driver)) {
+            $driver->quit();
         }
-        $binding = $where_info["binding"];
-        //삭제여부 사용 안하는경우
-        if (!$delete_flag_bool) {
-            $sql = str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $sql);
-        }
-        //order by 있는경우
-        if (is_array($order_by_arr) && count($order_by_arr) > 0) {
-            $sql_arr = explode("order by", $sql);
-            $sql = $sql_arr[0];
-            $sql .= " order by ";
-            foreach ($order_by_arr as $k => $v) {
-                if ($k > 0) {
-                    $sql .= ", ";
-                }
-                $sql .= $v;
-            }
-        }
-        //limit 있는경우
-        if (isset($limit_arr["limit"])) {
-            $sql .= " limit " . (isset($limit_arr["start"]) ? "{$limit_arr["start"]}, " : "") . $limit_arr["limit"];
-        }
-        $result = $this->db_result_array($sql, $binding, $database);
-        return $result;
-    }
-
-    /**
-     * 주 테이블 cnt쿼리<br>
-     * 삭제여부는 항상 n<br>
-     * 테이블별로 임의로 추가해서 사용
-     * 
-     * require  2021.04.15 solution_create_where, db_row_array
-     * @version 2021.04.15
-     * 
-     * @param  string $table     테이블명
-     * @param  array  $where_arr where문
-     * @param  bool   $delete_flag_bool true - 삭제여부 사용, false - 삭제여부 사용안함
-     * @param  string $database  사용 데이터베이스
-     * @return array             테이블 cnt쿼리 결과
-     */
-    function solution_table_cnt($table, $where_arr = array(), $delete_flag_bool = true, $database = "default") {
-        $where_info = $this->solution_create_where($where_arr);
-        if ($table == "admin") {
-            
-        } else if ($table == "admin_log") {
-            
-        } else if ($table == "author") {
-            
-        } else if ($table == "board") {
-            $sql = "
-                select
-                    count(*) as `cnt`
-                from
-                    `board` as `b`
-                where
-                    `b`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "category") {
-            
-        } else if ($table == "code") {
-            $sql = "
-                select
-                    count(*) as `cnt`
-                from
-                    `code` as `c2`
-                where
-                    `c2`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "comic") {
-            $sql = "
-                select
-                    count(*) as `cnt`
-                from
-                    `comic` as `c4`
-                left join
-                    `author` as `a2`
-                on
-                    `c4`.`author_idx` = `a2`.`author_idx`
-                left join
-                    `category` as `c`
-                on
-                    `c4`.`category_idx` = `c`.`category_idx`
-                where
-                    `c4`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "comment") {
-            $sql = "
-                select
-                    count(*) as `cnt`
-                from
-                    `comment` as `c3`
-                where
-                    `c3`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        } else if ($table == "connect_log") {
-            
-        } else if ($table == "file") {
-            
-        } else if ($table == "image") {
-            
-        } else if ($table == "member") {
-            $sql = "
-                select
-                    count(*) as `cnt`
-                from
-                    `member` as `m`
-                where
-                    `m`.`delete_flag` = 'n'
-                    {$where_info["where"]}
-            ";
-        }
-        $binding = $where_info["binding"];
-        //삭제여부 사용 안하는경우
-        if (!$delete_flag_bool) {
-            $sql = str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $sql);
-        }
-        $result = $this->db_row_array($sql, $binding, $database);
-        return $result;
+        return $content;
     }
 
     /**
@@ -3268,4 +2832,528 @@ class Ukp {
         ";
     }
 
+    /**
+     * 주 테이블 정보<br>
+     * 삭제여부는 항상 n<br>
+     * 테이블별로 임의로 추가해서 사용
+     * 
+     * require  2021.07.07 solution_create_where, db_row_array
+     * @version 2021.07.07
+     * 
+     * @param  string $table     테이블명
+     * @param  int    $idx       기본키(count(*)를 위해 필수)
+     * @param  array  $where_arr where문
+     * @param  string $database  사용 데이터베이스
+     * @return array             테이블 정보
+     */
+    function solution_table_info($table, $idx, $where_arr = array(), $database = "default") {
+        $where_info = $this->solution_create_where($where_arr);
+        if ($where_info["where"] != "") {
+            $where_info["where"] = " and {$where_info["where"]}";
+        }
+        if ($table == "admin") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `a`.`admin_idx`,
+                    `a`.`id`,
+                    `a`.`pw`
+                from
+                    `admin` as `a`
+                where
+                    `a`.`admin_idx` = ? and
+                    `a`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "admin_log") {
+            
+        } else if ($table == "author") {
+            
+        } else if ($table == "board") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `b`.`board_idx`,
+                    `b`.`category_idx`,
+                    `b`.`member_idx`,
+                    `b`.`title`,
+                    `b`.`content`,
+                    case
+                        when `b`.`admin_flag` = 'y' then '관리자'
+                        when `b`.`member_idx` is null then `b`.`name`
+                        else `m`.`nickname`
+                    end as `name`,
+                    `b`.`view_cnt`,
+                    `b`.`private_flag`,
+                    `b`.`top_flag`,
+                    `b`.`admin_flag`,
+                    `b`.`insert_date`,
+                    `b`.`insert_time`,
+                    `b`.`update_date`,
+                    `b`.`update_time`,
+                    `c`.`title` as `category_title`
+                from
+                    `board` as `b`
+                left join
+                    `category` as `c`
+                on
+                    `b`.`category_idx` = `c`.`category_idx`
+                left join
+                    `member` as `m`
+                on
+                    `b`.`member_idx` = `m`.`member_idx`
+                where
+                    `b`.`board_idx` = ? and
+                    `b`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "category") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `c`.`category_idx`,
+                    `c`.`parent_category_idx`,
+                    `c`.`file_name`,
+                    `c`.`manager_file_name`,
+                    `c`.`title`,
+                    `c`.`sort`
+                from
+                    `category` as `c`
+                where
+                    `c`.`category_idx` = ? and
+                    `c`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "code") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `c2`.`code_idx`,
+                    `c2`.`title`,
+                    `c2`.`content`,
+                    `c2`.`description`,
+                    `c2`.`core_flag`
+                from
+                    `code` as `c2`
+                where
+                    `c2`.`code_idx` = ? and
+                    `c2`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "comic") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `c4`.`comic_idx`,
+                    `c4`.`author_idx`,
+                    `c4`.`title`,
+                    `c4`.`page`,
+                    `c4`.`view_cnt`,
+                    `c4`.`download_url`,
+                    `c4`.`insert_date`,
+                    `c4`.`insert_time`,
+                    `a2`.`name` as `author`,
+                    `c`.`title` as `category_title`
+                from
+                    `comic` as `c4`
+                left join
+                    `author` as `a2`
+                on
+                    `c4`.`author_idx` = `a2`.`author_idx`
+                left join
+                    `category` as `c`
+                on
+                    `c4`.`category_idx` = `c`.`category_idx`
+                where
+                    `c4`.`comic_idx` = ? and
+                    `c4`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "comment") {
+            
+        } else if ($table == "connect_log") {
+            
+        } else if ($table == "file") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `f`.`file_idx`,
+                    `f`.`board_idx`,
+                    `f`.`origin_name`,
+                    `f`.`server_path`,
+                    `f`.`web_path`,
+                    `f`.`size`,
+                    `f`.`insert_date`,
+                    `f`.`insert_time`
+                from
+                    `file` as `f`
+                where
+                    `f`.`file_idx` = ? and
+                    `f`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "image") {
+            
+        } else if ($table == "member") {
+            $sql = "
+                select
+                    count(*) as `cnt`,
+                    `m`.`member_idx`,
+                    `m`.`id`,
+                    `m`.`nickname`,
+                    `m`.`name`,
+                    `m`.`birthday`,
+                    `m`.`gender`,
+                    `m`.`last_login_date`,
+                    `m`.`last_login_time`,
+                    `m`.`insert_date`,
+                    `m`.`insert_time`,
+                    `i`.`server_path`,
+                    `i`.`web_path`
+                from
+                    `member` as `m`
+                left join
+                    `image` as `i`
+                on
+                    `m`.`image_idx` = `i`.`image_idx`
+                where
+                    `m`.`member_idx` = ? and
+                    `m`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        }
+        $binding = array_merge(array($idx), $where_info["binding"]);
+        $result = $this->db_row_array($sql, $binding, $database);
+        return $result;
+    }
+
+    /**
+     * 주 테이블 리스트<br>
+     * 삭제여부는 항상 n<br>
+     * 테이블별로 임의로 추가해서 사용<br>
+     * 
+     * require  2021.07.07 solution_create_where, db_result_array
+     * @version 2021.07.07
+     * 
+     * @param  string $table            테이블명
+     * @param  array  $where_arr        where문
+     * @param  array  $limit_arr        ["start"] - 시작, ["limit"] - 갯수
+     * @param  array  $order_by_arr     정렬 배열(기본정렬인경우 빈배열)
+     * @param  bool   $delete_flag_bool true - 삭제여부 사용, false - 삭제여부 사용안함
+     * @param  string $database         사용 데이터베이스
+     * @return array                    테이블 리스트
+     */
+    function solution_table_list($table, $where_arr = array(), $limit_arr = array(), $order_by_arr = array(), $delete_flag_bool = true, $database = "default") {
+        $where_info = $this->solution_create_where($where_arr);
+        if ($where_info["where"] != "") {
+            $where_info["where"] = " and {$where_info["where"]}";
+        }
+        if ($table == "admin") {
+            
+        } else if ($table == "admin_log") {
+            
+        } else if ($table == "author") {
+            
+        } else if ($table == "board") {
+            $sql = "
+                select
+                    `b`.`board_idx`,
+                    `b`.`member_idx`,
+                    `b`.`title`,
+                    case
+                        when `b`.`admin_flag` = 'y' then '관리자'
+                        when `b`.`member_idx` is null then `b`.`name`
+                        else `m`.`nickname`
+                    end as `name`,
+                    `b`.`view_cnt`,
+                    `b`.`private_flag`,
+                    `b`.`top_flag`,
+                    `b`.`admin_flag`,
+                    `b`.`insert_date`,
+                    `b`.`insert_time`,
+                    `b`.`update_date`,
+                    `b`.`update_time`
+                from
+                    `board` as `b`
+                left join
+                    `member` as `m`
+                on
+                    `b`.`member_idx` = `m`.`member_idx`
+                where
+                    `b`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `b`.`board_idx` desc
+            ";
+        } else if ($table == "category") {
+            $sql = "
+                select
+                    `c`.`category_idx`,
+                    `c`.`parent_category_idx`,
+                    `c`.`file_name`,
+                    `c`.`manager_file_name`,
+                    `c`.`title`,
+                    `c`.`sort`
+                from
+                    `category` as `c`
+                where
+                    `c`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `c`.`sort`,
+                    `c`.`category_idx`
+            ";
+        } else if ($table == "code") {
+            $sql = "
+                select
+                    `c2`.`code_idx`,
+                    `c2`.`title`,
+                    `c2`.`content`,
+                    `c2`.`description`,
+                    `c2`.`core_flag`
+                from
+                    `code` as `c2`
+                where
+                    `c2`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `c2`.`core_flag` desc,
+                    `c2`.`code_idx` desc
+            ";
+        } else if ($table == "comic") {
+            $sql = "
+                select
+                    `c4`.`comic_idx`,
+                    `c4`.`author_idx`,
+                    `c4`.`title`,
+                    `c4`.`page`,
+                    `c4`.`view_cnt`,
+                    `c4`.`insert_date`,
+                    `c4`.`insert_time`,
+                    `a2`.`name` as `author`
+                from
+                    `comic` as `c4`
+                left join
+                    `author` as `a2`
+                on
+                    `c4`.`author_idx` = `a2`.`author_idx`
+                left join
+                    `category` as `c`
+                on
+                    `c4`.`category_idx` = `c`.`category_idx`
+                where
+                    `c4`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `c4`.`comic_idx` desc
+            ";
+        } else if ($table == "comment") {
+            $sql = "
+                select
+                    `c3`.`comment_idx`,
+                    `c3`.`parent_comment_idx`,
+                    `c3`.`board_idx`,
+                    `c3`.`member_idx`,
+                    `c3`.`content`,
+                    `c3`.`pw`,
+                    case
+                        when `c3`.`admin_flag` = 'y' then '관리자'
+                        when `c3`.`member_idx` is null then `c3`.`name`
+                        else `m`.`nickname`
+                    end as `name`,
+                    `c3`.`private_flag`,
+                    `c3`.`admin_flag`,
+                    `c3`.`insert_date`,
+                    `c3`.`insert_time`,
+                    `c3`.`update_date`,
+                    `c3`.`update_time`,
+                    `c3`.`delete_flag`
+                from
+                    `comment` as `c3`
+                left join
+                    `member` as `m`
+                on
+                    `c3`.`member_idx` = `m`.`member_idx`
+                where
+                    `c3`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `c3`.`comment_idx` desc
+            ";
+        } else if ($table == "connect_log") {
+            
+        } else if ($table == "file") {
+            $sql = "
+                select
+                    `f`.`file_idx`,
+                    `f`.`board_idx`,
+                    `f`.`origin_name`,
+                    `f`.`server_path`,
+                    `f`.`web_path`,
+                    `f`.`size`,
+                    `f`.`insert_date`,
+                    `f`.`insert_time`
+                from
+                    `file` as `f`
+                where
+                    `f`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `f`.`file_idx` desc
+            ";
+        } else if ($table == "image") {
+            
+        } else if ($table == "member") {
+            $sql = "
+                select
+                    `m`.`member_idx`,
+                    `m`.`id`,
+                    `m`.`nickname`,
+                    `m`.`name`,
+                    `m`.`birthday`,
+                    `m`.`gender`,
+                    `m`.`last_login_date`,
+                    `m`.`last_login_time`,
+                    `m`.`insert_date`,
+                    `m`.`insert_time`,
+                    `i`.`server_path`,
+                    `i`.`web_path`
+                from
+                    `member` as `m`
+                left join
+                    `image` as `i`
+                on
+                    `m`.`image_idx` = `i`.`image_idx`
+                where
+                    `m`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+                order by
+                    `m`.`member_idx` desc
+            ";
+        }
+        $binding = $where_info["binding"];
+        //삭제여부 사용 안하는경우
+        if (!$delete_flag_bool) {
+            $sql = str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $sql);
+        }
+        //order by 있는경우
+        if (is_array($order_by_arr) && count($order_by_arr) > 0) {
+            $sql_arr = explode("order by", $sql);
+            $sql = $sql_arr[0];
+            $sql .= " order by ";
+            foreach ($order_by_arr as $k => $v) {
+                if ($k > 0) {
+                    $sql .= ", ";
+                }
+                $sql .= $v;
+            }
+        }
+        //limit 있는경우
+        if (isset($limit_arr["limit"])) {
+            $sql .= " limit " . (isset($limit_arr["start"]) ? "{$limit_arr["start"]}, " : "") . $limit_arr["limit"];
+        }
+        $result = $this->db_result_array($sql, $binding, $database);
+        return $result;
+    }
+
+    /**
+     * 주 테이블 cnt쿼리<br>
+     * 삭제여부는 항상 n<br>
+     * 테이블별로 임의로 추가해서 사용
+     * 
+     * require  2021.07.07 solution_create_where, db_row_array
+     * @version 2021.07.07
+     * 
+     * @param  string $table     테이블명
+     * @param  array  $where_arr where문
+     * @param  bool   $delete_flag_bool true - 삭제여부 사용, false - 삭제여부 사용안함
+     * @param  string $database  사용 데이터베이스
+     * @return array             테이블 cnt쿼리 결과
+     */
+    function solution_table_cnt($table, $where_arr = array(), $delete_flag_bool = true, $database = "default") {
+        $where_info = $this->solution_create_where($where_arr);
+        if ($where_info["where"] != "") {
+            $where_info["where"] = " and {$where_info["where"]}";
+        }
+        if ($table == "admin") {
+            
+        } else if ($table == "admin_log") {
+            
+        } else if ($table == "author") {
+            
+        } else if ($table == "board") {
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `board` as `b`
+                where
+                    `b`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "category") {
+            
+        } else if ($table == "code") {
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `code` as `c2`
+                where
+                    `c2`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "comic") {
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `comic` as `c4`
+                left join
+                    `author` as `a2`
+                on
+                    `c4`.`author_idx` = `a2`.`author_idx`
+                left join
+                    `category` as `c`
+                on
+                    `c4`.`category_idx` = `c`.`category_idx`
+                where
+                    `c4`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "comment") {
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `comment` as `c3`
+                where
+                    `c3`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        } else if ($table == "connect_log") {
+            
+        } else if ($table == "file") {
+            
+        } else if ($table == "image") {
+            
+        } else if ($table == "member") {
+            $sql = "
+                select
+                    count(*) as `cnt`
+                from
+                    `member` as `m`
+                where
+                    `m`.`delete_flag` = 'n'
+                    {$where_info["where"]}
+            ";
+        }
+        $binding = $where_info["binding"];
+        //삭제여부 사용 안하는경우
+        if (!$delete_flag_bool) {
+            $sql = str_replace("`delete_flag` = 'n'", "`delete_flag` is not null", $sql);
+        }
+        $result = $this->db_row_array($sql, $binding, $database);
+        return $result;
+    }
 }
