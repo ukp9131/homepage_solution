@@ -83,6 +83,7 @@
                 position: relative;
                 text-align: center;
                 background-color: white;
+                z-index: 2;
             }
             .ukp__box_wrap > .ukp__pc > .ukp__header > .ukp__logo {
                 position: absolute;
